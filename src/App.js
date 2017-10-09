@@ -1,9 +1,23 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
+// import { PermissionsAndroid } from 'react-native';
 
 export default class App extends Component<{}> {
   state = {
     isRaining: false,
+    position: null,
+    region: null,
+    gpsAccuracy: null,
+  }
+
+  componentWillMount() {
+    this.getCurrentPosition();
+  }
+
+  getCurrentPosition = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      this.setState({ position });
+    });
   }
 
   render() {

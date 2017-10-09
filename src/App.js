@@ -21,17 +21,26 @@ export default class App extends Component<{}> {
   }
 
   render() {
-    const { isRaining } = this.state;
-
+    const { isRaining , position} = this.state;
+    if(position){
     return (
       <View style={styles.container}>
         <Text>London, United Kingdom</Text>
         <Text>{isRaining ? 'Yes' : 'No'}</Text>
         <Text>Small weather details go here</Text>
         <Text>Refresh button goes here</Text>
-        <Text>Settings button goes here</Text>
+        <Text>Longitude {position.coords.longitude}</Text>
+        <Text>Latitude {position.coords.latitude}</Text>
       </View>
     );
+  }else {
+      return (
+        <View style={styles.container}>
+          <Text>Loading...</Text>
+        </View>
+      );
+    }
+
   }
 }
 

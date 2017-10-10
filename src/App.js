@@ -1,52 +1,28 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import utils from './utils/methods';
+import defaultState from './utils/constants';
 
 export default class App extends Component<{}> {
-  state = {
-    isRaining: false,
-    position: null,
-    weatherData: null,
-    lastUpdated: null,
-  }
+  // Default values
+  state = { ...defaultState }
 
   componentWillMount() {
-    this.getCachedItems();
+    utils.getCachedItems().then(data => this.setState(data));
   }
 
-  getCachedItems = async () => {
-    // 1. first get the localdata
-    const value = await utils.getLocalData();
-    if (value === null) {
-      await utils.setLocalData();
-      return;
-    }
-
-    const data = JSON.parse(value);
-
-      // if (value.position) {
-      //   this.setState({ position: value.position });
-      // } else {
-      //   this.getCurrentPosition();
-      // }
-      //
-      // if (value.weatherData) {
-      //   this.setState({ weatherData: value.weatherData });
-      // } else {
-      //
-      // }
-  };
-
   render() {
-    const { isRaining } = this.state;
+    const { isRaining, position, weather, lastUpdated } = this.state;
+    console.log(position, lastUpdated);
 
     return (
       <View style={styles.container}>
-        <Text>London, United Kingdom</Text>
-        <Text>{isRaining ? 'Yes' : 'No'}</Text>
-        <Text>Small weather details go here</Text>
-        <Text>Refresh button goes here</Text>
-        <Text>Settings button goes here</Text>
+        <Text>Bring an umbrella? {isRaining ? 'YES' : 'NO'}</Text>
+        <Text>
+          pos: lat: {position.coords.latitude} and {position.coords.longitude}
+        </Text>
+        <Text>weather: {weather}</Text>
+        <Text>lastUpdated: {lastUpdated}</Text>
       </View>
     );
   }

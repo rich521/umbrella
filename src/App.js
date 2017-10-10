@@ -1,24 +1,41 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
-// import { PermissionsAndroid } from 'react-native';
+import utils from './utils/methods';
 
 export default class App extends Component<{}> {
   state = {
     isRaining: false,
     position: null,
-    region: null,
-    gpsAccuracy: null,
+    weatherData: null,
+    lastUpdated: null,
   }
 
   componentWillMount() {
-    this.getCurrentPosition();
+    this.getCachedItems();
   }
 
-  getCurrentPosition = () => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      this.setState({ position });
-    });
-  }
+  getCachedItems = async () => {
+    // 1. first get the localdata
+    const value = await utils.getLocalData();
+    if (value === null) {
+      await utils.setLocalData();
+      return;
+    }
+
+    const data = JSON.parse(value);
+
+      // if (value.position) {
+      //   this.setState({ position: value.position });
+      // } else {
+      //   this.getCurrentPosition();
+      // }
+      //
+      // if (value.weatherData) {
+      //   this.setState({ weatherData: value.weatherData });
+      // } else {
+      //
+      // }
+  };
 
   render() {
     const { isRaining } = this.state;

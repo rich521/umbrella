@@ -1,5 +1,6 @@
 import { AsyncStorage } from 'react-native';
-// import WEATHER_KEY from './key'; // You must create your own key.js file IMPORTANT
+import axios from 'axios';
+import URL_BASE from './key'; // You must create your own key.js file IMPORTANT
 const DATA_KEY = '@localStore';
 
 // Uncomment this if you want to clearstorage. dont fetch api too often. clear once.
@@ -12,7 +13,14 @@ const utils = {
     });
   },
 
-  getCurrentWeather: () => 'sunny', // TODO add api methods here
+  getCurrentWeather: ({ coords: { latitude, longitude } }) => {
+    // return axios.get('https://httpbin.org/get'); // TEST
+
+    // TODO network error on SIMULATOR. need to change configurtion. URL works tested.
+    const url = `${URL_BASE}&lat=${latitude}&lon=${longitude}`;
+    console.log(url);
+    return axios.get(url);
+  },
 
   // unix timestamp
   getCurrentTime: () => new Date().toDateString(),
@@ -31,10 +39,13 @@ const utils = {
 
     if (localStore === null) {
       console.log('only run once..!!');
-      const position = await utils.getCurrentPosition();
-      const weather = await utils.getCurrentWeather();
+      const position = await utils.getCurrentPosition(); // TODO catch
+      const weather = await utils.getCurrentWeather(position);
+      console.log(weather);
       const lastUpdated = await utils.getCurrentTime();
-      await utils.setLocalData({ position, weather, lastUpdated });
+      await utils.setLocalData({ position, weather: `${weather}`, lastUpdated });
+
+      console.log(weather);
 
       return { position, weather, lastUpdated };
     }

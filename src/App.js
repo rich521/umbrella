@@ -21,7 +21,7 @@ export default class App extends Component<{}> {
         <Text>
           pos: lat: {position.coords.latitude} and {position.coords.longitude}
         </Text>
-        <Text>weather: {weather}</Text>
+        <Text>weather: {`${weather}`}</Text>
         <Text>lastUpdated: {lastUpdated}</Text>
       </View>
     );

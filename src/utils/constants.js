@@ -4,13 +4,8 @@ const defaultState = {
   isRaining: false,
 
   /* localStorage  */
-  position: {
-    coords: {
-      longitude: '50',
-      latitude: '50',
-    }
-  },
-  weather: 'sunny',
+  position: null,
+  weather: null,
   lastUpdated: utils.getCurrentTime(),
 
 };

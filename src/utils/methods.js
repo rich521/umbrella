@@ -14,12 +14,12 @@ const utils = {
   },
 
   getCurrentWeather: ({ coords: { latitude, longitude } }) => {
-    // return axios.get('https://httpbin.org/get'); // TEST
+    return axios.get('https://httpbin.org/get'); // TESTing api from random source
 
     // TODO network error on SIMULATOR. need to change configurtion. URL works tested.
-    const url = `${URL_BASE}&lat=${latitude}&lon=${longitude}`;
-    console.log(url);
-    return axios.get(url);
+  //   const url = `${URL_BASE}&lat=${latitude}&lon=${longitude}`;
+  //   console.log(url);
+  //   return axios.get(url);
   },
 
   // unix timestamp

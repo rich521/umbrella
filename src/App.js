@@ -15,13 +15,15 @@ export default class App extends Component<{}> {
     const { isRaining, position, weather, lastUpdated } = this.state;
     console.log(position, lastUpdated);
 
+    if (!weather || !position) return <Text>loading weather...</Text>;
+
     return (
       <View style={styles.container}>
         <Text>Bring an umbrella? {isRaining ? 'YES' : 'NO'}</Text>
         <Text>
           pos: lat: {position.coords.latitude} and {position.coords.longitude}
         </Text>
-        <Text>weather: {`${weather}`}</Text>
+        <Text>weather: {`${weather}`} object is api object!!</Text>
         <Text>lastUpdated: {lastUpdated}</Text>
       </View>
     );

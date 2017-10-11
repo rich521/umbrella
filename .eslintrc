@@ -3,6 +3,9 @@
     "env": {
         "browser": true
     },
+    "globals": {
+        "Promise": true
+    },
     "plugins": [
         "react"
     ],

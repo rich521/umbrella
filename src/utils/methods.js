@@ -42,27 +42,20 @@ const utils = {
 
   getCachedItems: async () => {
     // Get the localdata
-    console.log('run_getCashedItems');
     const localStore = await utils.getLocalData();
-    console.log('run_localstore, getLocalData');
 
-    if (localStore===null) {
-      console.log('only run once..!!');
+    if (localStore === null) {
       const position = await utils.getCurrentPosition(); // TODO catch
       const weather = await utils.getCurrentWeather(position);
-      console.log(weather);
       const lastUpdated = await utils.getCurrentTime();
       await utils.setLocalData({ position, weather, lastUpdated });
-      console.log(weather);
 
       return { position, weather, lastUpdated, isFetching:false };
     }
 
     let { position, weather, lastUpdated } = JSON.parse(localStore);
-    console.log(new Date(lastUpdated));
 
-    if(new Date() - new Date(lastUpdated) > REFRESH_TIME){ //refresh time limit
-      console.log("fetching data");
+    if(utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME){ //refresh time limit
       // check each item, then refetch if needed
       if (!position) position = await utils.getCurrentPosition();
       if (!weather) weather = await utils.getCurrentWeather(position);
@@ -71,8 +64,6 @@ const utils = {
       await utils.setLocalData({ position, weather, lastUpdated });
       return { position, weather, lastUpdated, isFetching:false };
   }
-  console.log("refresh too soon");
-
   return { remark: true, isFetching:false };
   }
 };

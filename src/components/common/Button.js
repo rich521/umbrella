@@ -16,11 +16,11 @@ const styles = {
   buttonStyle : {
     width:200,
     alignSelf:'center',
-    backgroundColor:'#F5FCFF',
+    //backgroundColor:'#F5FCFF',
     borderRadius:5,
     borderColor:'#919191',
     borderWidth:2,
-    marginTop:100,
+    marginTop: 10,
     marginLeft:5,
     marginRight:5
   },

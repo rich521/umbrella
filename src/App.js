@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
+import { Actions } from 'react-native-router-flux';
 import { Spinner, Button } from './components/common';
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
@@ -14,18 +15,18 @@ export default class App extends Component<{}> {
     this.fetchWeather();
   }
 
-  fetchWeather(){
-    this.setState({ remark: false, isFetching:true });
+  fetchWeather = () => {
+    this.setState({ remark: false, isFetching: true });
     utils.getCachedItems().then(data => this.setState(data));
   }
 
-  renderButton(){ //If already fetching for weather, spinner will appear.
+  renderButton() { //If already fetching for weather, spinner will appear.
     if(this.state.isFetching) return (
       <View style = {styles.spinnerContainer}>
-        <Spinner size={'small'}/>
+        <Spinner size = "small" />
       </View>
     );
-    return (<Button onPress = {this.fetchWeather.bind(this)}>Refresh</Button>);
+    return (<Button onPress = { () => this.fetchWeather() }>Refresh</Button>);
   }
 
   renderUnderButtonText({ remark, lastUpdated }){
@@ -37,22 +38,24 @@ export default class App extends Component<{}> {
 
   render() {
     const { isRaining, position, weather, lastUpdated, remark } = this.state;
-    if (!weather || !position) return <View style={styles.container}><Spinner/></View>;
+    if (!weather || !position) return <View style={ styles.container }><Spinner/></View>;
 
     return (
-      <View style = {styles.container}>
-        <View style = {{height:100}}/>
+      <View style = { styles.container }>
+        <View style = {{ height: 100 }}/>
 
-        <View style = {styles.tempContainer}>
-          <Text style={styles.textStyle}>{Math.round((weather.main.temp-32)/1.8)+"\u2103"}</Text>
+        <View style = { styles.tempContainer }>
+          <Text style={ styles.textStyle }>{ Math.round((weather.main.temp-32)/1.8)+"\u2103" }</Text>
           <Text></Text>
-          <Text>Bring an umbrella? {isRaining ? 'Probably...' : 'Nope'}</Text>
-          <Text>{weather.weather[0].description}</Text>
+          <Text>Bring an umbrella? { isRaining ? 'Probably...' : 'Nope' }</Text>
+          <Text>{ weather.weather[0].description }</Text>
         </View>
 
-        <View style = {styles.tempContainer}>
-        {this.renderButton()}
-        {this.renderUnderButtonText({ remark, lastUpdated })}
+        <View style = { styles.tempContainer }>
+        { this.renderButton() }
+        <Button onPress = { () => Actions.settings() }>Settings</Button>
+        { this.renderUnderButtonText({ remark, lastUpdated }) }
+
         </View>
       </View>
     );

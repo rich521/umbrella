@@ -5,13 +5,13 @@ import { Actions } from 'react-native-router-flux';
 //import Weather from './Weather';
 
 const Settings = () => {
-
   return (
     <View style = {{ flex:1, backgroundColor: '#f9f9f9' }}>
       <View style = {{ flex:1, alignItems: 'stretch', marginTop:55, marginBottom:0 }}>
         <Card>
           <CardSection>
             <Text style = { styles.textStyle }>Settings Here</Text>
+
           </CardSection>
           <CardSection>
             <Text style = { styles.textStyle }>Settings Here</Text>

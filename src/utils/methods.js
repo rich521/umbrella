@@ -1,7 +1,10 @@
 import { AsyncStorage } from 'react-native';
 import axios from 'axios';
 import API from './key'; // You must create your own key.js file IMPORTANT
-const DATA_KEY = '@localStore';
+
+const KEY = {
+  WEATHER : '@localStore',
+  SETTINGS : '@localStore'}
 const REFRESH_TIME = 60000; // time required before second refresh (ms)
 
 // Uncomment this if you want to clearstorage. dont fetch api too often. clear once.
@@ -32,41 +35,62 @@ const utils = {
   // unix timestamp
   getCurrentTime: () => new Date(),
 
-  getLocalData: () => AsyncStorage.getItem(DATA_KEY),
-  /**
-    * @params {Object} --> Object: { position, weather, lastUpdated }
-  **/
-  setLocalData: data => AsyncStorage.setItem(DATA_KEY, JSON.stringify(data)),
+  getLocalData: key => AsyncStorage.getItem(key),
+
+  setLocalData: (key, data) => AsyncStorage.setItem(key, JSON.stringify(data)),
 
   deleteLocalData: () => AsyncStorage.clear(),
 
   getCachedItems: async () => {
     // Get the localdata
-    const localStore = await utils.getLocalData();
+    const localStore = await utils.getLocalData(KEY.WEATHER);
 
     if (localStore === null) {
-      const position = await utils.getCurrentPosition(); // TODO catch
-      const weather = await utils.getCurrentWeather(position);
-      const lastUpdated = await utils.getCurrentTime();
-      await utils.setLocalData({ position, weather, lastUpdated });
-
-      return { position, weather, lastUpdated, isFetching:false };
+      const weatherData = {
+        position : await utils.getCurrentPosition(), // TODO catch
+        weather : await utils.getCurrentWeather(position),
+        lastUpdated : await utils.getCurrentTime(),
+      };
+      await utils.setLocalData(KEY.WEATHER, weatherData);
+      return weatherData;
     }
 
     let { position, weather, lastUpdated } = JSON.parse(localStore);
 
-    if(utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME){ //refresh time limit
+    if (utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME){ //refresh time limit
       // check each item, then refetch if needed
-      //if (!position)
       position = await utils.getCurrentPosition();
-      //if (!weather)
       weather = await utils.getCurrentWeather(position);
       lastUpdated = await utils.getCurrentTime();
 
-      await utils.setLocalData({ position, weather, lastUpdated });
-      return { position, weather, lastUpdated, isFetching:false };
-  }
-  return { remark: true, isFetching:false };
+      await utils.setLocalData(KEY.WEATHER, { position, weather, lastUpdated });
+      return { position, weather, lastUpdated };
+    }
+
+    return { position, weather, remark: true };
+  },
+
+  getCachedSettings: async () => {
+    // Get the local settings
+    const localStore = await utils.getLocalData(KEY.SETTINGS);
+
+    if (localStore === null) {
+      const settingData = {
+       isMeric: true,
+       remindOn: false,
+       time: new Date('2017-01-01T07:00:00.000Z'),
+      };
+      await utils.setLocalData(KEY.SETTINGS, settingData);
+
+      return settingData;
+    }
+
+    return JSON.parse(localStore);
+  },
+
+  setCachedSettings: async (settingData) => {
+    // Set the local settings
+    await utils.setLocalData(KEY.SETTINGS, settingData );
   }
 };
 

@@ -17,7 +17,7 @@ export default class App extends Component<{}> {
 
   fetchWeather = () => {
     this.setState({ remark: false, isFetching: true });
-    utils.getCachedItems().then(data => this.setState(data));
+    utils.getCachedItems().then(data => this.setState({ ...data, isFetching: false }));
   }
 
   renderButton() { //If already fetching for weather, spinner will appear.
@@ -26,14 +26,14 @@ export default class App extends Component<{}> {
         <Spinner size = "small" />
       </View>
     );
-    return (<Button onPress = { () => this.fetchWeather() }>Refresh</Button>);
+    return <Button onPress = { () => this.fetchWeather() }>Refresh</Button>;
   }
 
   renderUnderButtonText({ remark, lastUpdated }){
     if (remark){
-    return <Text style = {{ fontSize:10 }}>Refresh too soon.</Text>;
+    return <Text style = {{ fontSize:10 }}>LastUpdated: {new Date(lastUpdated).toDateString()}.</Text>;
     }
-    return <Text style = {{ fontSize:10 }}>LastUpdated: {new Date(lastUpdated).toDateString()}</Text>;
+    return <Text style = {{ fontSize:10 }}>Updated.</Text>;
   }
 
   render() {

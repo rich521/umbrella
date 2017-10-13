@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Card, CardSection, Button } from './components/common';
 import { Actions } from 'react-native-router-flux';
-//import Weather from './Weather';
 
 const Settings = () =>
     <View style = {{ flex:1, backgroundColor: '#f9f9f9' }}>

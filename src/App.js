@@ -11,7 +11,7 @@ export default class App extends Component<{}> {
   state = { ...defaultState }
 
   componentWillMount() {
-    utils.deleteLocalData();
+    //utils.deleteLocalData();
     this.fetchWeather();
   }
 
@@ -22,7 +22,7 @@ export default class App extends Component<{}> {
 
   renderButton() { //If already fetching for weather, spinner will appear.
     if(this.state.isFetching) return (
-      <View style = {styles.spinnerContainer}>
+      <View style = {styles.tempContainer}>
         <Spinner size = "small" />
       </View>
     );

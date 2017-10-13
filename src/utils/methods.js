@@ -2,6 +2,7 @@ import { AsyncStorage } from 'react-native';
 import axios from 'axios';
 import API from './key'; // You must create your own key.js file IMPORTANT
 const DATA_KEY = '@localStore';
+const SETTINGS_KEY = '@localStore';
 const REFRESH_TIME = 60000; // time required before second refresh (ms)
 
 // Uncomment this if you want to clearstorage. dont fetch api too often. clear once.
@@ -32,42 +33,60 @@ const utils = {
   // unix timestamp
   getCurrentTime: () => new Date(),
 
-  getLocalData: () => AsyncStorage.getItem(DATA_KEY),
-  /**
-    * @params {Object} --> Object: { position, weather, lastUpdated }
-  **/
-  setLocalData: data => AsyncStorage.setItem(DATA_KEY, JSON.stringify(data)),
+  getLocalData: key => AsyncStorage.getItem(key),
+
+  setLocalData: (key, data) => AsyncStorage.setItem(key, JSON.stringify(data)),
 
   deleteLocalData: () => AsyncStorage.clear(),
 
   getCachedItems: async () => {
     // Get the localdata
-    const localStore = await utils.getLocalData();
+    const localStore = await utils.getLocalData(DATA_KEY);
 
     if (localStore === null) {
       const position = await utils.getCurrentPosition(); // TODO catch
       const weather = await utils.getCurrentWeather(position);
       const lastUpdated = await utils.getCurrentTime();
-      await utils.setLocalData({ position, weather, lastUpdated });
+      await utils.setLocalData(DATA_KEY, { position, weather, lastUpdated });
 
       return { position, weather, lastUpdated, isFetching:false };
     }
 
     let { position, weather, lastUpdated } = JSON.parse(localStore);
-
+    console.log(lastUpdated);
     if(utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME){ //refresh time limit
       // check each item, then refetch if needed
-      //if (!position)
       position = await utils.getCurrentPosition();
-      //if (!weather)
       weather = await utils.getCurrentWeather(position);
       lastUpdated = await utils.getCurrentTime();
 
-      await utils.setLocalData({ position, weather, lastUpdated });
+      await utils.setLocalData(DATA_KEY, { position, weather, lastUpdated });
       return { position, weather, lastUpdated, isFetching:false };
   }
   return { remark: true, isFetching:false };
+},
+
+getCachedSettings: async () => {
+  // Get the local settings
+  const localStore = await utils.getLocalData(SETTINGS_KEY);
+
+  if (localStore === null) {
+    const isMetric = true;
+    const reminderOn = false;
+    const time = new Date('2017-01-01T07:00:00.000Z');
+    await utils.setLocalData(SETTINGS_KEY, { isMetric, reminderOn, time });
+
+    return { time, isMetric, reminderOn };
   }
+
+  let { time, isMetric, reminderOn } = JSON.parse(localStore);
+  return { time, isMetric, reminderOn };
+},
+
+setCachedSettings: async ( isMetric, reminderOn, time ) => {
+  // Get the localdata
+  await utils.setLocalData(SETTINGS_KEY, { isMetric, reminderOn, time });
+}
 };
 
 export default utils;

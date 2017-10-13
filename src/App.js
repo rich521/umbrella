@@ -38,17 +38,17 @@ export default class App extends Component<{}> {
 
   render() {
     const { isRaining, position, weather, lastUpdated, remark } = this.state;
-    if (!weather || !position) return <View style={ styles.container }><Spinner/></View>;
+    if (!weather || !position) return <View style={ styles.spinnerContainer }><Spinner/></View>;
 
     return (
       <View style = { styles.container }>
         <View style = {{ height: 100 }}/>
 
         <View style = { styles.tempContainer }>
-          <Text style={ styles.textStyle }>{ Math.round((weather.main.temp-32)/1.8)+"\u2103" }</Text>
+          <Text style={ styles.textStyle }>{ Math.round(weather.main.temp)+"\u2103" }</Text>
           <Text></Text>
           <Text>Bring an umbrella? { isRaining ? 'Probably...' : 'Nope' }</Text>
-          <Text>{ weather.weather[0].description }</Text>
+          <Text>{ weather.weather[0].main }</Text>
         </View>
 
         <View style = { styles.tempContainer }>
@@ -73,8 +73,9 @@ const styles = {
     fontSize:50
   },
   spinnerContainer : {
+    flex:1,
     padding:5,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     position:'relative'
   },
   tempContainer : {

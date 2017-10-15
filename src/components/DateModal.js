@@ -36,7 +36,8 @@ const DateModal = ({
     setDateVisible(true);
   }
 
-  const minutes = date.getMinutes();
+  const formattedDate = new Date(date);
+  const minutes = formattedDate.getMinutes();
   const minString = (minutes + '').length === 1 ? `0${minutes}` : minutes;
 
   return (
@@ -49,7 +50,7 @@ const DateModal = ({
          <View style={{ marginTop: 22 }}>
           <View>
             <DatePickerIOS
-              date={date}
+              date={formattedDate}
               mode="time"
               onDateChange={onDateChange}
             />
@@ -63,7 +64,7 @@ const DateModal = ({
         <TouchableHighlight onPress={() => onClickDateTime()}>
           <View>
             <Text>Notify me at: </Text>
-            <Text>{`${date.getHours()}:${minString} >`}</Text>
+            <Text>{`${formattedDate.getHours()}:${minString} >`}</Text>
           </View>
         </TouchableHighlight>
 
@@ -72,7 +73,7 @@ const DateModal = ({
 };
 
 DateModal.propTypes = {
-  date: PropTypes.shape({}).isRequired,
+  date: PropTypes.string.isRequired,
   isDateVisible: PropTypes.bool.isRequired,
   onDateChange: PropTypes.func.isRequired,
   setDateVisible: PropTypes.func.isRequired,

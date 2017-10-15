@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Text, View } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import PushNotification from 'react-native-push-notification';
 import { Spinner, Button } from './components/common';
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
@@ -23,12 +24,26 @@ export default class App extends Component<{}> {
 
   componentWillMount() {
     //utils.deleteLocalData();
+    if (PushNotification) PushNotification.cancelAllLocalNotifications();
     this.fetchWeather();
+  }
+
+  setPushNotification = (date) => {
+    PushNotification.localNotificationSchedule({
+      message: "bring an umbrella", // (required)
+      date, // make sure its always the set date by user or +24hrs
+    });
   }
 
   fetchWeather = () => {
     this.setState({ remark: false, isFetching: true });
-    utils.getCachedItems().then(data => this.setState({ ...data, isFetching: false }));
+    utils.getCachedItems().then(data => {
+      PushNotification.configure({
+        onNotification: () => this.setPushNotification(new Date()), // TODO set this to date + 24hrs
+      });
+      this.setState({ ...data, isFetching: false })
+      this.setPushNotification(new Date()); // TODO change this setDate
+    });
   }
 
   renderButton() { //If already fetching for weather, spinner will appear.

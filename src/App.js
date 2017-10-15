@@ -4,11 +4,22 @@ import { Actions } from 'react-native-router-flux';
 import { Spinner, Button } from './components/common';
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
-import defaultState from './utils/constants';
 
 export default class App extends Component<{}> {
   // Default values
-  state = { ...defaultState }
+  state = {
+    isFetching:false,
+    isRaining: false,
+    remark:'',
+    /* localStorage  */
+    position: null,
+    weather: null,
+    lastUpdated: null,
+    /* settingStorage */
+    reminderOn: false,
+    time: new Date('2017-01-01T07:00:00.000Z'),
+    isMetric : true,
+  }
 
   componentWillMount() {
     //utils.deleteLocalData();
@@ -55,7 +66,6 @@ export default class App extends Component<{}> {
         { this.renderButton() }
         <Button onPress = { () => Actions.settings() }>Settings</Button>
         { this.renderUnderButtonText({ remark, lastUpdated }) }
-
         </View>
       </View>
     );
@@ -70,17 +80,17 @@ const styles = {
     backgroundColor: '#F5FCFF',
   },
   textStyle : {
-    fontSize:50
+    fontSize: 50,
   },
   spinnerContainer : {
-    flex:1,
-    padding:5,
+    flex: 1,
+    padding: 5,
     justifyContent: 'center',
-    position:'relative'
+    position:'relative',
   },
   tempContainer : {
     justifyContent: 'center',
     alignItems: 'center',
-    margin:10
+    margin: 10,
   },
 };

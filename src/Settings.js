@@ -1,43 +1,61 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { Card, CardSection, Button } from './components/common';
+import React, { Component } from 'react';
+import { View, Text, Switch } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import { Card, CardSection, Button } from './components/common';
+import DateModal from './components/DateModal';
+import { SCENE } from './utils/constants';
 
-const Settings = () =>
-    <View style = {{ flex:1, backgroundColor: '#f9f9f9' }}>
-      <View style = {{ flex:1, alignItems: 'stretch', marginTop:55, marginBottom:0 }}>
-        <Card>
-          <CardSection>
-            <Text style = { styles.textStyle }>Settings Here</Text>
-          </CardSection>
-          <CardSection>
-            <Text style = { styles.textStyle }>Settings Here</Text>
-          </CardSection>
-        </Card>
+const sevenAmDate = new Date();
+sevenAmDate.setHours('07');
+sevenAmDate.setMinutes('00');
 
-        <Card>
-          <CardSection>
-            <Text style = { styles.textStyle }>Settings Here</Text>
-          </CardSection>
-          <CardSection>
-            <Text style = { styles.textStyle }>Settings Here</Text>
-          </CardSection>
-          <CardSection>
-            <Text style = { styles.textStyle }>Settings Here</Text>
-          </CardSection>
-        </Card>
+class Settings extends Component {
+  state = {
+    isNotifyOn: true,
+    isDateVisible: false,
+    date: sevenAmDate,
+  }
 
+  render() {
+    const { isNotifyOn, date, isDateVisible } = this.state;
+    return (
+      <View style = {styles.settingsContainer}>
+        <View style = {{ flex:1, alignItems: 'stretch', marginTop:55, marginBottom:0 }}>
+          <Card>
+            <CardSection>
+              <Text style={styles.textStyle}>Notification</Text>
+              <Switch
+                value={isNotifyOn}
+                isNotifyOnonValueChange={isNotifyOn => this.setState({ isNotifyOn })}
+              />
+            </CardSection>
+            <CardSection>
+              <DateModal
+                onDateChange={date => this.setState({ date })}
+                date={date}
+                isDateVisible={isDateVisible}
+                setDateVisible={isDateVisible => this.setState({ isDateVisible })}
+              />
+            </CardSection>
+          </Card>
+
+        </View>
+        <View style={{ paddingBottom: 20 }}>
+          <Button onPress={() => Actions[SCENE.WEATHER]()}>Save</Button>
+        </View>
       </View>
-      <View style = {{paddingBottom:20}}>
-        <Button onPress = { () => Actions.pop() }>Save</Button>
-      </View>
-    </View>;
+    );
+  }
+}
 
 const styles = {
-textStyle: {
-  fontSize:15,
-},
-
+  settingsContainer: {
+    flex:1,
+    backgroundColor: '#f9f9f9'
+  },
+  textStyle: {
+    fontSize:15,
+  },
 }
 
 export default Settings;

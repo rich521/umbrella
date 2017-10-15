@@ -17,10 +17,27 @@ const sampleWeather = {"coord":{"lon":139.01,"lat":35.02},"weather":[{"id":800,"
 const utils = {
   isAndroid: () => Platform.OS === 'android',
 
+  fetchSettings: async (state) => {
+    const localSettings = await utils.getLocalData(KEY.SETTINGS);
+    if (localSettings === null) {
+      const storedState = {
+        date: state.date,
+        isNotifyOn: state.isNotifyOn,
+      };
+      await AsyncStorage.setItem(KEY.SETTINGS, JSON.stringify(storedState));
+      return storedState;
+    }
+
+    return JSON.parse(localSettings);
+  },
+
+  setSettings: async (stateData) => {
+    await AsyncStorage.setItem(KEY.SETTINGS, JSON.stringify(stateData));
+  },
+
   getCurrentPosition: () => {
     return new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(position => resolve(position));
-      //console.log(resolve);
     });
   },
 

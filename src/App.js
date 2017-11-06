@@ -1,23 +1,101 @@
 import React, { Component } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, AppState } from 'react-native';
 import { Actions } from 'react-native-router-flux';
+import PushController from './components/PushController';
+import PushNotification from 'react-native-push-notification';
 import { Spinner, Button } from './components/common';
+import BackgroundJob from "react-native-background-job";
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
-import defaultState from './utils/constants';
+
+const regularJobKey = "regularJobKey";
+
+BackgroundJob.register({
+  jobKey: regularJobKey,
+  job: () => {
+    //App.setNotification(App.fetchWeather());
+    console.log(`${new Date()} Background Job fired!. Key = ${regularJobKey}`)
+    BackgroundJob.cancelAll();
+    }
+});
 
 export default class App extends Component<{}> {
   // Default values
-  state = { ...defaultState }
-
+ constructor(props) {
+   super(props);
+   this.handleAppStateChange = this.handleAppStateChange.bind(this);
+   this.state = {
+      isFetching:false,
+      isRaining: false,
+      remark:'',
+      /* localStorage  */
+      position: null,
+      weather: null,
+      lastUpdated: null,
+      /* settingStorage */
+      reminderOn: false,
+      date: new Date('2017-01-01T07:00:00.000Z'),
+      isMetric : true,
+    };
+  }
+  componentWillUnmount(){
+    AppState.removeEventListener('change', this.handleAppStateChange);
+  }
   componentWillMount() {
     //utils.deleteLocalData();
+    BackgroundJob.cancelAll();
+    //if (PushNotification) PushNotification.cancelAllLocalNotifications();
     this.fetchWeather();
+  }
+  componentDidMount() {
+     AppState.addEventListener('change', this.handleAppStateChange);
+  }
+
+  handleAppStateChange = async (appState) => {
+    if (appState === 'background') {
+      console.log("hello");
+      const arabicFood = await utils.fetchSettings();
+      const difference = new Date(new Date(arabicFood.date) - Date.now());
+      console.log(difference);
+      BackgroundJob.schedule({
+        jobKey: regularJobKey,
+        period: (difference.getHours()*60*60 + difference.getMinutes()*60)*1000, //calculate time to set
+      });
+    }
+  }
+
+  setPushNotification = (date,message) => {
+    PushNotification.localNotificationSchedule({
+      message, // (required)
+      date: new Date(date), // make sure its always the set date by user or +24hrs
+      playSound: false,
+    });
+  }
+
+  setNotification = (message) => {
+    if (PushNotification) PushNotification.cancelAllLocalNotifications();
+
+    utils.fetchSettings().then(data => {
+      if(data.isNotifyOn){
+        const newDate = new Date(Date.now() + 2*1000);
+        //debugger;
+        const bufferDate = newDate.setSeconds(newDate.getSeconds()+20);
+        const settingsData = { date: bufferDate, isNotifyOn: true };
+        utils.setSettings(settingsData)
+        this.setPushNotification(bufferDate,message);
+      }
+    });
   }
 
   fetchWeather = () => {
     this.setState({ remark: false, isFetching: true });
-    utils.getCachedItems().then(data => this.setState({ ...data, isFetching: false }));
+    utils.getCachedItems().then(data => {
+      this.setState({ ...data, isFetching: false });
+      //if (data.weather.weather[0].main === "Rain") this.setState({ isRaining: true });
+      this.setState({ isRaining: true });
+      return this.state.isRaining;
+      //this.setPushNotification(new Date()); // TODO change this setDate
+    });
   }
 
   renderButton() { //If already fetching for weather, spinner will appear.
@@ -55,8 +133,8 @@ export default class App extends Component<{}> {
         { this.renderButton() }
         <Button onPress = { () => Actions.settings() }>Settings</Button>
         { this.renderUnderButtonText({ remark, lastUpdated }) }
-
         </View>
+        <PushController/>
       </View>
     );
   }
@@ -70,17 +148,17 @@ const styles = {
     backgroundColor: '#F5FCFF',
   },
   textStyle : {
-    fontSize:50
+    fontSize: 50,
   },
   spinnerContainer : {
-    flex:1,
-    padding:5,
+    flex: 1,
+    padding: 5,
     justifyContent: 'center',
-    position:'relative'
+    position:'relative',
   },
   tempContainer : {
     justifyContent: 'center',
     alignItems: 'center',
-    margin:10
+    margin: 10,
   },
 };

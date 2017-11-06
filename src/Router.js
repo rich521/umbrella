@@ -1,28 +1,27 @@
 import React from 'react';
-import {Scene, Router,Actions} from 'react-native-router-flux';
+import { Scene, Router,Actions } from 'react-native-router-flux';
 import App from './App';
 import Settings from './Settings';
+import { SCENE } from './utils/constants';
 
-const RouterComponent = () => {
+const { SETTINGS, WEATHER } = SCENE;
 
-  return (
-    <Router>
-      <Scene>
-        <Scene
-          key = "weather"
-          component = { App }
-          hideNavBar = { true }
-        />
-        <Scene
-          navTransparent = { true }
-          key = "settings"
-          component = { Settings }
-          title = "Settings"
-          onLeft = { () => Actions.weather() }
-        />
-      </Scene>
-    </Router>
-  )
-}
+const RouterComponent = () =>
+  <Router>
+    <Scene>
+      <Scene
+        key={WEATHER}
+        component={App}
+        hideNavBar
+      />
+      <Scene
+        navTransparent
+        key={SETTINGS}
+        component={Settings}
+        title="Settings"
+        onLeft={() => Actions[WEATHER]()}
+      />
+    </Scene>
+  </Router>;
 
 export default RouterComponent;

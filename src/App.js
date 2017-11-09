@@ -4,20 +4,79 @@ import { Actions } from 'react-native-router-flux';
 import PushController from './components/PushController';
 import PushNotification from 'react-native-push-notification';
 import { Spinner, Button } from './components/common';
-import BackgroundJob from "react-native-background-job";
+// import BackgroundJob from 'react-native-background-job';
+import BackgroundTask from 'react-native-background-task';
+
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
 
-const regularJobKey = "regularJobKey";
+// const firstJobKey = "firstJobKey";
+//onst regularJobKey = "regularJobKey";
+BackgroundTask.define(async () => {
+  const ID = 'ID: ' + Math.random().toFixed(4);
+  console.log(`1- ${ID} - ${new Date()} Background Job fired!.`);
 
-BackgroundJob.register({
-  jobKey: regularJobKey,
-  job: () => {
-    //App.setNotification(App.fetchWeather());
-    console.log(`${new Date()} Background Job fired!. Key = ${regularJobKey}`)
-    BackgroundJob.cancelAll();
-    }
+  BackgroundTask.cancel(); // ios/android
+
+  console.log(`2-  ${ID} - clearing all schedules`);
+
+
+  console.log(`3-  ${ID} - fetching weather`);
+  const decision = await utils.getCachedItems();
+  console.log(`4-  ${ID} - got weather`);
+
+  PushNotification.localNotification({
+    title: "",
+    message: `weather: ${decision.weather.main.temp}
+    ${decision.weather.weather[0].main}
+    ${new Date()}`, // (required)
+    playSound: false,
+  });
+  console.log(`5-  ${ID} - sent notification`);
+
+
+  console.log(`6-  ${ID} - assingning 24hr schedule`);
+
+  BackgroundTask.schedule({
+      period: 900, //24 hrs
+  });
+
+  BackgroundTask.finish();
 });
+
+
+// BackgroundJob.register({
+//   jobKey: regularJobKey,
+//   job: async () => {
+//     console.log(`${new Date()} Background Job fired!. Key = ${regularJobKey}`);
+//     console.log("fetching weather");
+//
+//     const decision = await utils.getCachedItems();
+//     console.log("got weather");
+//     PushNotification.localNotification({
+//       message: `weather: ${decision.weather.main.temp}
+//       ${decision.weather.weather[0].main}`, // (required)
+//       playSound: false,
+//     });
+//     console.log("sent notification");
+//     }
+// });
+//
+// BackgroundJob.register({
+//   jobKey: firstJobKey,
+//   job: () => {
+//     //App.setNotification(App.fetchWeather());
+//     console.log(`${new Date()} Background Job fired!. Key = ${firstJobKey}`)
+//     //if (PushNotification) PushNotification.cancelAllLocalNotifications();
+//     BackgroundJob.cancelAll();
+//     BackgroundJob.schedule({
+//       jobKey: regularJobKey,
+//       period: 100000, //5mins
+//       //period: 86400000, //24hrs
+//       //networkType: 1,
+//     });
+//     }
+// });
 
 export default class App extends Component<{}> {
   // Default values
@@ -28,68 +87,73 @@ export default class App extends Component<{}> {
       isFetching:false,
       isRaining: false,
       remark:'',
-      /* localStorage  */
+      /* localStorage */
       position: null,
       weather: null,
       lastUpdated: null,
-      /* settingStorage */
+      /* SettingStorage */
       reminderOn: false,
       date: new Date('2017-01-01T07:00:00.000Z'),
       isMetric : true,
     };
   }
+
   componentWillUnmount(){
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
   componentWillMount() {
-    //utils.deleteLocalData();
-    BackgroundJob.cancelAll();
-    //if (PushNotification) PushNotification.cancelAllLocalNotifications();
-    this.fetchWeather();
+    //utils.deleteLocalData('@localStore');
+    //BackgroundJob.cancelAll();
+    utils.getCachedItems().then(data => {
+      console.log(data);
+      this.setState({ ...data , remark:true});
+    });
+
+    if (PushNotification) PushNotification.cancelAllLocalNotifications();
+    PushNotification.localNotification({
+      title: "No umbrella needed.",
+      largeIcon: "icon",
+      smallIcon: "icon",
+      message: "Enjoy your day ;)", // (required)
+      playSound: false,
+    });
   }
   componentDidMount() {
      AppState.addEventListener('change', this.handleAppStateChange);
   }
-
   handleAppStateChange = async (appState) => {
     if (appState === 'background') {
+      this.setState({ isRaining: false });
       console.log("hello");
       const arabicFood = await utils.fetchSettings();
       const difference = new Date(new Date(arabicFood.date) - Date.now());
       console.log(difference);
+      BackgroundTask.schedule({
+          period: (difference.getHours()*60*60 + difference.getMinutes()*60), //calculate time to set
+      });
+      console.log(`${new Date()} - background task set`);
+      /*
       BackgroundJob.schedule({
-        jobKey: regularJobKey,
+        jobKey: firstJobKey,
         period: (difference.getHours()*60*60 + difference.getMinutes()*60)*1000, //calculate time to set
       });
+      */
     }
-  }
+    if (appState === 'active') {
+      BackgroundTask.cancel();
+      console.log("background task cancelled");
+      // utils.getCachedItems().then(data => {
+      //   this.setState({ ...data });
+      //   console.log("recieved cached items");
+      // });
 
-  setPushNotification = (date,message) => {
-    PushNotification.localNotificationSchedule({
-      message, // (required)
-      date: new Date(date), // make sure its always the set date by user or +24hrs
-      playSound: false,
-    });
-  }
-
-  setNotification = (message) => {
-    if (PushNotification) PushNotification.cancelAllLocalNotifications();
-
-    utils.fetchSettings().then(data => {
-      if(data.isNotifyOn){
-        const newDate = new Date(Date.now() + 2*1000);
-        //debugger;
-        const bufferDate = newDate.setSeconds(newDate.getSeconds()+20);
-        const settingsData = { date: bufferDate, isNotifyOn: true };
-        utils.setSettings(settingsData)
-        this.setPushNotification(bufferDate,message);
-      }
-    });
+      //BackgroundJob.cancelAll();
+    }
   }
 
   fetchWeather = () => {
     this.setState({ remark: false, isFetching: true });
-    utils.getCachedItems().then(data => {
+    utils.refreshCachedItems().then(data => {
       this.setState({ ...data, isFetching: false });
       //if (data.weather.weather[0].main === "Rain") this.setState({ isRaining: true });
       this.setState({ isRaining: true });
@@ -97,6 +161,8 @@ export default class App extends Component<{}> {
       //this.setPushNotification(new Date()); // TODO change this setDate
     });
   }
+
+//------------------------------RENDER CODE-----------------------------------//
 
   renderButton() { //If already fetching for weather, spinner will appear.
     if(this.state.isFetching) return (

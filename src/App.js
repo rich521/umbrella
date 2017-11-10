@@ -33,17 +33,12 @@ BackgroundTask.define(async () => {
     playSound: false,
   });
   console.log(`5-  ${ID} - sent notification`);
-
-
   console.log(`6-  ${ID} - assingning 24hr schedule`);
-
   BackgroundTask.schedule({
       period: 900, //24 hrs
   });
-
   BackgroundTask.finish();
 });
-
 
 // BackgroundJob.register({
 //   jobKey: regularJobKey,
@@ -109,6 +104,8 @@ export default class App extends Component<{}> {
       this.setState({ ...data , remark:true});
     });
 
+    utils.setLocalData('@localStore', { description:'', isRaining:false});
+
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
     PushNotification.localNotification({
       title: "No umbrella needed.",
@@ -155,8 +152,7 @@ export default class App extends Component<{}> {
     this.setState({ remark: false, isFetching: true });
     utils.refreshCachedItems().then(data => {
       this.setState({ ...data, isFetching: false });
-      //if (data.weather.weather[0].main === "Rain") this.setState({ isRaining: true });
-      this.setState({ isRaining: true });
+      //this.setState({ isRaining: true });
       return this.state.isRaining;
       //this.setPushNotification(new Date()); // TODO change this setDate
     });

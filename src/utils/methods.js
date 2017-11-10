@@ -46,23 +46,38 @@ const utils = {
   },
 
   getCurrentWeather: ({latitude,longitude}) => {
-    console.log(latitude);
-    //return sampleWeather;
-    // return axios.get('https://httpbin.org/get'); // TESTing api from random source
-    const URL_BASE = 'http://api.openweathermap.org/data/2.5/weather?';
+    // const URL_BASE = 'http://api.openweathermap.org/data/2.5/weather?';
+    const URL_BASE = 'http://api.openweathermap.org/data/2.5/forecast?';
     //const url = 'http://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=b1b15e88fa797225412429c1c50c122a1';
     const url = `${URL_BASE}lat=${latitude}&lon=${longitude}&appid=${API}&units=metric`;
-    console.log(url);
     return new Promise((resolve) => {
       axios.get(url).then(response => {
         console.log(response.data);
         resolve(response.data);
+        utils.retrieveDayForecast(response.data,response.data.cnt);
       });
     });
     //return(null);
   },
 
-  // unix timestamp
+  retrieveDayForecast: async (data,cnt) => {
+    const d = new Date()
+    const z = n => n.toString().length == 1 ? `0${n}` : n // Zero pad
+    const date1 = `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}` // returns (2017-11-10 ie YYYY-MM-DD)
+
+    let description = "";
+    for (let i=0; i< cnt; i++){
+      if (data.list[i].dt_txt.indexOf(date1) === -1){ //find if the items in the list are todays forcast only
+        i=cnt;
+      }else{
+        description = `${description} ${data.list[i].weather[0].description}` //append descriptions into one variable
+      }
+    }
+    let isRaining = false;
+    if( description.indexOf("rain") >0 ) isRaining = true;
+    await utils.setLocalData(KEY.WEATHER, { description, isRaining });
+  },
+
   getCurrentTime: () => new Date(),
 
   getLocalData: key => AsyncStorage.getItem(key),
@@ -73,7 +88,7 @@ const utils = {
 
   refreshCachedItems: async () => {
 
-    let { position, weather, lastUpdated } = await utils.getCachedItems(); //get local data
+    let { position, weather, lastUpdated, isRaining, description } = await utils.getCachedItems(); //get local data
     console.log(lastUpdated);
     if (utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME) { //refresh time limit
       console.log("gettin position");
@@ -88,7 +103,7 @@ const utils = {
       return { position, weather, lastUpdated };
     }
 
-    return { position, weather, lastUpdated, remark: true };
+    return { position, weather, lastUpdated, isRaining, description, remark: true };
   },
 
   getCachedItems: async () => {
@@ -98,6 +113,8 @@ const utils = {
     if (localStore === null) {
       const position = await utils.getCurrentPosition(); // TODO catch
       const weatherData = {
+        isRaining:false,
+        description:'',
         position, // TODO catch
         weather : await utils.getCurrentWeather(position.coords),
         lastUpdated : await utils.getCurrentTime(),

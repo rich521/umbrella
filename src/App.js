@@ -18,12 +18,7 @@ BackgroundTask.define(async () => {
 
   BackgroundTask.cancel(); // ios/android
 
-  console.log(`2-  ${ID} - clearing all schedules`);
-
-
-  console.log(`3-  ${ID} - fetching weather`);
   const decision = await utils.getCachedItems();
-  console.log(`4-  ${ID} - got weather`);
 
   PushNotification.localNotification({
     title: "",
@@ -32,8 +27,7 @@ BackgroundTask.define(async () => {
     ${new Date()}`, // (required)
     playSound: false,
   });
-  console.log(`5-  ${ID} - sent notification`);
-  console.log(`6-  ${ID} - assingning 24hr schedule`);
+
   BackgroundTask.schedule({
       period: 900, //24 hrs
   });
@@ -100,11 +94,10 @@ export default class App extends Component<{}> {
     //utils.deleteLocalData('@localStore');
     //BackgroundJob.cancelAll();
     utils.getCachedItems().then(data => {
-      console.log(data);
       this.setState({ ...data , remark:true});
     });
 
-    //utils.setLocalData('@localStore', { description:'', isRaining:false});
+    utils.setLocalData('@localStore', { description:'', isRaining:false});
 
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
     PushNotification.localNotification({
@@ -118,17 +111,15 @@ export default class App extends Component<{}> {
   componentDidMount() {
      AppState.addEventListener('change', this.handleAppStateChange);
   }
+
   handleAppStateChange = async (appState) => {
     if (appState === 'background') {
       this.setState({ isRaining: false });
-      console.log("hello");
       const arabicFood = await utils.fetchSettings();
       const difference = new Date(new Date(arabicFood.date) - Date.now());
-      console.log(difference);
       BackgroundTask.schedule({
           period: (difference.getHours()*60*60 + difference.getMinutes()*60), //calculate time to set
       });
-      console.log(`${new Date()} - background task set`);
       /*
       BackgroundJob.schedule({
         jobKey: firstJobKey,
@@ -138,7 +129,6 @@ export default class App extends Component<{}> {
     }
     if (appState === 'active') {
       BackgroundTask.cancel();
-      console.log("background task cancelled");
       // utils.getCachedItems().then(data => {
       //   this.setState({ ...data });
       //   console.log("recieved cached items");

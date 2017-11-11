@@ -104,7 +104,7 @@ export default class App extends Component<{}> {
       this.setState({ ...data , remark:true});
     });
 
-    utils.setLocalData('@localStore', { description:'', isRaining:false});
+    //utils.setLocalData('@localStore', { description:'', isRaining:false});
 
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
     PushNotification.localNotification({

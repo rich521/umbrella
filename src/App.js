@@ -18,8 +18,7 @@ BackgroundTask.define(async () => {
 
   PushNotification.localNotification({
     title: "",
-    message: `weather: ${decision.weather.main.temp}
-    ${decision.weather.weather[0].main}
+    message: `weather: ${decision.weather.list[0].main.temp}
     ${new Date()}`, // (required)
     playSound: false,
   });
@@ -58,8 +57,8 @@ export default class App extends Component<{}> {
     //utils.deleteLocalData(KEY.WEATHER);
     //BackgroundJob.cancelAll();
     //-------------------------------------------//
-    utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
-    utils.getCachedItems().then(data => {
+    //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
+    utils.refreshCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
 
@@ -131,10 +130,10 @@ export default class App extends Component<{}> {
         <View style = {{ height: 100 }}/>
 
         <View style = { styles.tempContainer }>
-          <Text style={ styles.textStyle }>{ Math.round(weather.main.temp)+"\u2103" }</Text>
+          <Text style={ styles.textStyle }>{ Math.round(weather.list[0].main.temp)+"\u2103" }</Text>
           <Text></Text>
           <Text>Bring an umbrella? { isRaining ? 'Probably...' : 'Nope' }</Text>
-          <Text>{ weather.weather[0].main }</Text>
+          <Text>{ weather.list[0].weather[0].description }</Text>
         </View>
 
         <View style = { styles.tempContainer }>

@@ -12,8 +12,6 @@ import { KEY } from './utils/constants';
 const TASK_PERIOD = 900;
 
 BackgroundTask.define(async () => {
-  const ID = 'ID: ' + Math.random().toFixed(4);
-  console.log(`1- ${ID} - ${new Date()} Background Job fired!.`);
 
   BackgroundTask.cancel(); // ios/android
 
@@ -83,18 +81,18 @@ export default class App extends Component<{}> {
     if (appState === 'background') {
       this.setState({ isRaining: false });
       const settings = await utils.fetchSettings();
-      const period_difference = new Date(new Date(settings.date) - Date.now());
+      const remind_date = new Date(settings.date);
+      const period_difference = new Date(remind_date - Date.now());
+      const remindLaterTimeInSecs = (period_difference.getHours()*60*60 + period_difference.getMinutes()*60);
       BackgroundTask.schedule({
-          period: (period_difference.getHours()*60*60 + period_difference.getMinutes()*60), //calculate time to set (s)
+          period: remindLaterTimeInSecs, //calculate time to set (s)
       });
     }
     if (appState === 'active') {
       BackgroundTask.cancel();
       utils.getCachedItems().then(data => {
         this.setState({ ...data });
-        console.log("recieved cached items");
       });
-
       //BackgroundJob.cancelAll();
     }
   }

@@ -3,7 +3,6 @@ import { View, Text, Switch } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import { Card, CardSection, Button } from './components/common';
 import DateModal from './components/DateModal';
-//import { SCENE } from './utils/constants';
 import utils from './utils/methods';
 
 const initDate = new Date();

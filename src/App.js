@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, AppState } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-import PushController from './components/PushController';
 import PushNotification from 'react-native-push-notification';
 import { Spinner, Button } from './components/common';
 import BackgroundTask from 'react-native-background-task';
@@ -93,7 +92,6 @@ export default class App extends Component<{}> {
       utils.getCachedItems().then(data => {
         this.setState({ ...data });
       });
-      //BackgroundJob.cancelAll();
     }
   }
 
@@ -144,7 +142,6 @@ export default class App extends Component<{}> {
         <Button onPress = { () => Actions.settings() }>Settings</Button>
         { this.renderUnderButtonText({ remark, lastUpdated }) }
         </View>
-        <PushController/>
       </View>
     );
   }

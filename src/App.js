@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, AppState } from 'react-native';
 import { Actions } from 'react-native-router-flux';
-import PushController from './components/PushController';
 import PushNotification from 'react-native-push-notification';
 import { Spinner, Button } from './components/common';
 import BackgroundTask from 'react-native-background-task';
@@ -12,9 +11,7 @@ import { KEY } from './utils/constants';
 const TASK_PERIOD = 900;
 
 BackgroundTask.define(async () => {
-
   BackgroundTask.cancel(); // ios/android
-
   const decision = await utils.getCachedItems();
 
   PushNotification.localNotification({
@@ -57,10 +54,9 @@ export default class App extends Component<{}> {
   componentWillMount() {
     //=============debug purposes----------------//
     //utils.deleteLocalData(KEY.WEATHER);
-    //BackgroundJob.cancelAll();
     //-------------------------------------------//
     utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
-    utils.getCachedItems().then(data => {
+    utils.refreshCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
 
@@ -93,7 +89,7 @@ export default class App extends Component<{}> {
       utils.getCachedItems().then(data => {
         this.setState({ ...data });
       });
-      //BackgroundJob.cancelAll();
+
     }
   }
 
@@ -144,7 +140,6 @@ export default class App extends Component<{}> {
         <Button onPress = { () => Actions.settings() }>Settings</Button>
         { this.renderUnderButtonText({ remark, lastUpdated }) }
         </View>
-        <PushController/>
       </View>
     );
   }

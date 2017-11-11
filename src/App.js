@@ -4,14 +4,13 @@ import { Actions } from 'react-native-router-flux';
 import PushController from './components/PushController';
 import PushNotification from 'react-native-push-notification';
 import { Spinner, Button } from './components/common';
-// import BackgroundJob from 'react-native-background-job';
 import BackgroundTask from 'react-native-background-task';
-
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
+import { KEY } from './utils/constants';
 
-// const firstJobKey = "firstJobKey";
-//onst regularJobKey = "regularJobKey";
+const TASK_PERIOD = 900;
+
 BackgroundTask.define(async () => {
   const ID = 'ID: ' + Math.random().toFixed(4);
   console.log(`1- ${ID} - ${new Date()} Background Job fired!.`);
@@ -29,43 +28,10 @@ BackgroundTask.define(async () => {
   });
 
   BackgroundTask.schedule({
-      period: 900, //24 hrs
+      period: TASK_PERIOD,
   });
   BackgroundTask.finish();
 });
-
-// BackgroundJob.register({
-//   jobKey: regularJobKey,
-//   job: async () => {
-//     console.log(`${new Date()} Background Job fired!. Key = ${regularJobKey}`);
-//     console.log("fetching weather");
-//
-//     const decision = await utils.getCachedItems();
-//     console.log("got weather");
-//     PushNotification.localNotification({
-//       message: `weather: ${decision.weather.main.temp}
-//       ${decision.weather.weather[0].main}`, // (required)
-//       playSound: false,
-//     });
-//     console.log("sent notification");
-//     }
-// });
-//
-// BackgroundJob.register({
-//   jobKey: firstJobKey,
-//   job: () => {
-//     //App.setNotification(App.fetchWeather());
-//     console.log(`${new Date()} Background Job fired!. Key = ${firstJobKey}`)
-//     //if (PushNotification) PushNotification.cancelAllLocalNotifications();
-//     BackgroundJob.cancelAll();
-//     BackgroundJob.schedule({
-//       jobKey: regularJobKey,
-//       period: 100000, //5mins
-//       //period: 86400000, //24hrs
-//       //networkType: 1,
-//     });
-//     }
-// });
 
 export default class App extends Component<{}> {
   // Default values
@@ -91,13 +57,14 @@ export default class App extends Component<{}> {
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
   componentWillMount() {
-    //utils.deleteLocalData('@localStore');
+    //=============debug purposes----------------//
+    //utils.deleteLocalData(KEY.WEATHER);
     //BackgroundJob.cancelAll();
+    //-------------------------------------------//
+    utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
     utils.getCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
-
-    utils.setLocalData('@localStore', { description:'', isRaining:false});
 
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
     PushNotification.localNotification({
@@ -115,24 +82,18 @@ export default class App extends Component<{}> {
   handleAppStateChange = async (appState) => {
     if (appState === 'background') {
       this.setState({ isRaining: false });
-      const arabicFood = await utils.fetchSettings();
-      const difference = new Date(new Date(arabicFood.date) - Date.now());
+      const settings = await utils.fetchSettings();
+      const period_difference = new Date(new Date(settings.date) - Date.now());
       BackgroundTask.schedule({
-          period: (difference.getHours()*60*60 + difference.getMinutes()*60), //calculate time to set
+          period: (period_difference.getHours()*60*60 + period_difference.getMinutes()*60), //calculate time to set (s)
       });
-      /*
-      BackgroundJob.schedule({
-        jobKey: firstJobKey,
-        period: (difference.getHours()*60*60 + difference.getMinutes()*60)*1000, //calculate time to set
-      });
-      */
     }
     if (appState === 'active') {
       BackgroundTask.cancel();
-      // utils.getCachedItems().then(data => {
-      //   this.setState({ ...data });
-      //   console.log("recieved cached items");
-      // });
+      utils.getCachedItems().then(data => {
+        this.setState({ ...data });
+        console.log("recieved cached items");
+      });
 
       //BackgroundJob.cancelAll();
     }
@@ -144,7 +105,6 @@ export default class App extends Component<{}> {
       this.setState({ ...data, isFetching: false });
       //this.setState({ isRaining: true });
       return this.state.isRaining;
-      //this.setPushNotification(new Date()); // TODO change this setDate
     });
   }
 

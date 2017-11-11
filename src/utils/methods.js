@@ -1,11 +1,7 @@
 import { AsyncStorage, Platform } from 'react-native';
 import axios from 'axios';
 import API from './key'; // You must create your own key.js file IMPORTANT
-
-const KEY = {
-  WEATHER : '@localStore',
-  SETTINGS : '@localSettings',
-};
+import { KEY } from './constants';
 
 const REFRESH_TIME = 60000; // time required before second refresh (ms)
 
@@ -52,7 +48,6 @@ const utils = {
     const url = `${URL_BASE}lat=${latitude}&lon=${longitude}&appid=${API}&units=metric`;
     return new Promise((resolve) => {
       axios.get(url).then(response => {
-        console.log(response.data);
         resolve(response.data);
       });
     });
@@ -60,9 +55,9 @@ const utils = {
   },
 
   retrieveDayForecast: async (data,count) => {
-    const d = new Date()
-    const z = n => n.toString().length == 1 ? `0${n}` : n // Zero pad
-    const date = `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}` // returns (2017-11-10 ie YYYY-MM-DD)
+    const d = new Date();
+    const z = n => n.toString().length === 1 ? `0${n}` : n ;// Zero pad
+    const date = `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; // returns (2017-11-10 ie YYYY-MM-DD)
 
     let description = "";
     for (let i=0; i< count; i++){
@@ -70,7 +65,7 @@ const utils = {
       description = `${description} ${data.list[i].weather[0].description}`; //append descriptions into one variable
     }
     let isRaining = false;
-    if( description.indexOf("rain") >0 ) isRaining = true;
+    if( description.indexOf("rain") >= 0 ) isRaining = true;
     return { description, isRaining };
   },
 
@@ -85,16 +80,12 @@ const utils = {
   refreshCachedItems: async () => {
 
     let { position, weather, lastUpdated, isRaining, description } = await utils.getCachedItems(); //get local data
-    console.log(lastUpdated);
+
     if (utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME) { //refresh time limit
-      // console.log("gettin position");
       // check each item, then refetch if needed
       position = await utils.getCurrentPosition();
-      // console.log("gettin weather");
       weather = await utils.getCurrentWeather(position.coords);
-      console.log("processing weather data");
       let { description, isRaining } = await utils.retrieveDayForecast(weather,weather.cnt);
-      console.log("resetting last updated weather");
       lastUpdated = await utils.getCurrentTime();
 
       await utils.setLocalData(KEY.WEATHER, { position, weather, lastUpdated, description, isRaining });
@@ -107,7 +98,7 @@ const utils = {
   getCachedItems: async () => {
     // Get the localdata
     const localStore = await utils.getLocalData(KEY.WEATHER);
-    console.log(localStore);
+
     if (localStore === null) {
       const position = await utils.getCurrentPosition(); // TODO catch
       const weatherData = {

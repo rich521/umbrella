@@ -78,7 +78,6 @@ const utils = {
   deleteLocalData: (key) => AsyncStorage.multiRemove([key]),
 
   refreshCachedItems: async () => {
-
     let { position, weather, lastUpdated, isRaining, description } = await utils.getCachedItems(); //get local data
 
     if (utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME) { //refresh time limit
@@ -98,7 +97,7 @@ const utils = {
   getCachedItems: async () => {
     // Get the localdata
     const localStore = await utils.getLocalData(KEY.WEATHER);
-
+    console.log(localStore);
     if (localStore === null) {
       const position = await utils.getCurrentPosition(); // TODO catch
       const weatherData = {

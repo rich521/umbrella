@@ -6,7 +6,6 @@ import { Spinner, Button } from './components/common';
 import BackgroundTask from 'react-native-background-task';
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
-import { KEY } from './utils/constants';
 
 const TASK_PERIOD = 900;
 
@@ -15,11 +14,11 @@ BackgroundTask.define(async () => {
   BackgroundTask.cancel(); // ios/android
 
   const decision = await utils.getCachedItems();
-
+  const notif_msg = (decision.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
   PushNotification.localNotification({
-    title: "",
+    title: notif_msg,
     message: `weather: ${decision.weather.list[0].main.temp}
-    ${new Date()}`, // (required)
+    `, // (required)
     playSound: false,
   });
 
@@ -56,9 +55,9 @@ export default class App extends Component<{}> {
     //=============debug purposes----------------//
     //utils.deleteLocalData(KEY.WEATHER);
     //BackgroundJob.cancelAll();
-    //-------------------------------------------//
     //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
-    utils.refreshCachedItems().then(data => {
+    //-------------------------------------------//
+    utils.getCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
 

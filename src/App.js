@@ -6,7 +6,7 @@ import { Spinner, Button } from './components/common';
 import BackgroundTask from 'react-native-background-task';
 // import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
-import { KEY } from './utils/constants';
+// import { KEY } from './utils/constants';
 
 const TASK_PERIOD = 900;
 
@@ -29,7 +29,7 @@ BackgroundTask.define(async () => {
   BackgroundTask.finish();
 });
 
-export default class App extends Component<{}> {
+export default class App extends Component {
   // Default values
  constructor(props) {
    super(props);
@@ -58,7 +58,7 @@ export default class App extends Component<{}> {
     //BackgroundJob.cancelAll();
     //-------------------------------------------//
     //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
-    utils.refreshCachedItems().then(data => {
+    utils.getCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
 

@@ -45,6 +45,7 @@ class Settings extends Component {
 
   render() {
     const { isMetric, isNotifyOn, date, isDateVisible } = this.state;
+
     return (
       <View style={styles.settingsContainer}>
         <View style={styles.settingsInner}>

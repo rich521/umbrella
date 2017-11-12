@@ -45,6 +45,7 @@ class Settings extends Component {
 
   render() {
     const { isMetric, isNotifyOn, date, isDateVisible } = this.state;
+
     return (
       <View style={styles.settingsContainer}>
         <View style={styles.settingsInner}>
@@ -75,7 +76,7 @@ class Settings extends Component {
 
         </View>
         <View style={{ paddingBottom: 20 }}>
-          <Button onPress={() => Actions.pop()}>Save</Button>
+          <Button onPress={() => Actions.pop( {refresh: {isMetric} })}>Save</Button>
         </View>
       </View>
     );

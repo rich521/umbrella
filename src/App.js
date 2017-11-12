@@ -28,7 +28,7 @@ BackgroundTask.define(async () => {
   BackgroundTask.finish();
 });
 
-export default class App extends Component<{}> {
+export default class App extends Component {
   // Default values
  constructor(props) {
    super(props);

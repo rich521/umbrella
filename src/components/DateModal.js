@@ -65,7 +65,6 @@ const DateModal = ({
 
         <TouchableHighlight onPress={() => onClickDateTime()}>
           <View>
-            <Text>Notify me at: </Text>
             <Text>{`${formattedDate.getHours()}:${minString}`}</Text>
           </View>
         </TouchableHighlight>

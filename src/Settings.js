@@ -4,7 +4,7 @@ import { Actions } from 'react-native-router-flux';
 import { Card, CardSection, Button } from './components/common';
 import DateModal from './components/DateModal';
 import utils from './utils/methods';
-import { KEY } from './constants';
+import { KEY } from './utils/constants';
 
 const initDate = new Date();
 initDate.setHours('07');
@@ -27,18 +27,24 @@ class Settings extends Component {
 
   onDateChange = (date) => {
     const settingsData = { date, isNotifyOn: this.state.isNotifyOn };
-    utils.setLocalData(KEY.WEATHER,settingsData)
+    utils.setLocalData(KEY.SETTINGS,settingsData)
       .then(() => this.setState({ ...settingsData }));
   }
 
   onNotifyChange = (isNotifyOn) => {
     const settingsData = { date: this.state.date, isNotifyOn };
-    utils.setLocalData(KEY.WEATHER,settingsData)
+    utils.setLocalData(KEY.SETTINGS,settingsData)
+      .then(() => this.setState({ ...settingsData }));
+  };
+
+  onMetricChange = (isMetric) => {
+    const settingsData = { date: this.state.date, isMetric };
+    utils.setLocalData(KEY.SETTINGS,settingsData)
       .then(() => this.setState({ ...settingsData }));
   };
 
   render() {
-    const { isNotifyOn, date, isDateVisible } = this.state;
+    const { isMetric, isNotifyOn, date, isDateVisible } = this.state;
     return (
       <View style={styles.settingsContainer}>
         <View style={styles.settingsInner}>
@@ -51,6 +57,13 @@ class Settings extends Component {
               />
             </CardSection>
             <CardSection>
+              <Text style={styles.textStyle}>Metric Option ({"\u2103"})</Text>
+              <View>
+                <Switch value={isMetric} onValueChange={this.onMetricChange} />
+              </View>
+            </CardSection>
+            <CardSection>
+              <Text style={styles.textStyle}>Notify me at</Text>
               <DateModal
                 onDateChange={this.onDateChange}
                 date={new Date(date)}
@@ -81,7 +94,8 @@ const styles = {
     marginBottom: 0,
   },
   textStyle: {
-    fontSize:15,
+    fontWeight: '400',
+    fontSize: 15,
   },
 }
 

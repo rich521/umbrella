@@ -4,8 +4,8 @@ import { Actions } from 'react-native-router-flux';
 import PushNotification from 'react-native-push-notification';
 import { Spinner, Button } from './components/common';
 import BackgroundTask from 'react-native-background-task';
-// import { PermissionsAndroid } from 'react-native';
 import utils from './utils/methods';
+import styles from './styles/app';
 // import { KEY } from './utils/constants';
 
 const TASK_PERIOD = 900;
@@ -127,45 +127,22 @@ export default class App extends Component {
     if (!weather || !position) return <View style={ styles.spinnerContainer }><Spinner/></View>;
 
     return (
-      <View style = { styles.container }>
-        <View style = {{ height: 100 }}/>
+      <View style={ styles.container }>
+        <View style={{ height: 100 }} />
 
-        <View style = { styles.tempContainer }>
-          <Text style={ styles.textStyle }>{ Math.round(weather.list[0].main.temp)+"\u2103" }</Text>
-          <Text></Text>
-          <Text>Bring an umbrella? { isRaining ? 'Probably...' : 'Nope' }</Text>
-          <Text>{ weather.list[0].weather[0].description }</Text>
+        <View style={styles.tempContainer}>
+          <Text style={styles.textStyle.temp}>{ Math.round(weather.list[0].main.temp)+"\u2103" }</Text>
+          <Text style={styles.textStyle.notes}>{weather.list[0].weather[0].description}</Text>
+          <Text style={styles.textStyle.question}>Bring an umbrella?</Text>
+          <Text style={styles.textStyle.answer}>{isRaining ? 'Probably...' : 'Nope'}</Text>
         </View>
 
-        <View style = { styles.tempContainer }>
-        { this.renderButton() }
-        <Button onPress = { () => Actions.settings() }>Settings</Button>
-        { this.renderUnderButtonText({ remark, lastUpdated }) }
+        <View style={styles.tempContainer}>
+        {this.renderButton()}
+        <Button onPress={() => Actions.settings()}>Settings</Button>
+        {this.renderUnderButtonText({ remark, lastUpdated }) }
         </View>
       </View>
     );
   }
 }
-
-const styles = {
-  container : {
-    flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  textStyle : {
-    fontSize: 50,
-  },
-  spinnerContainer : {
-    flex: 1,
-    padding: 5,
-    justifyContent: 'center',
-    position:'relative',
-  },
-  tempContainer : {
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 10,
-  },
-};

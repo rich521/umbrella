@@ -1,5 +1,4 @@
 import { AsyncStorage, Platform } from 'react-native';
-import axios from 'axios';
 import API from './key'; // You must create your own key.js file IMPORTANT
 import { KEY } from './constants';
 
@@ -41,17 +40,24 @@ const utils = {
     });
   },
 
-  getCurrentWeather: async ({latitude,longitude}) => {
-    // const URL_BASE = 'http://api.openweathermap.org/data/2.5/weather?';
-    const URL_BASE = 'http://api.openweathermap.org/data/2.5/forecast?';
-    //const url = 'http://samples.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid=b1b15e88fa797225412429c1c50c122a1';
-    const url = `${URL_BASE}lat=${latitude}&lon=${longitude}&appid=${API}&units=metric`;
+  getCurrentWeather: async (
+    // {latitude,longitude}
+  ) => {
+    // const URL_BASE = 'https://api.openweathermap.org/data/2.5/forecast?';
+    const url = 'https://samples.openweathermap.org/data/2.5/forecast?lat=35&lon=139&appid=b1b15e88fa797225412429c1c50c122a1';
+    // const url = `${URL_BASE}lat=${latitude}&lon=${longitude}&appid=${API}&units=metric`;
     return new Promise((resolve) => {
-      axios.get(url).then(response => {
-        resolve(response.data);
+      fetch(url).then(response => {
+        const bodyText = response._bodyText;
+        if (bodyText && typeof response._bodyText === 'string') {
+          resolve(JSON.parse(response._bodyText));
+        } else {
+          resolve(response.data);          
+        }
+      }).catch((error) => {
+        throw new Error(error)
       });
     });
-    //return(null);
   },
 
   retrieveDayForecast: async (data,count) => {

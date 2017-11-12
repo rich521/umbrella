@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scene, Router,Actions } from 'react-native-router-flux';
+import { Scene, Router, Actions } from 'react-native-router-flux';
 import App from './App';
 import Settings from './Settings';
 import { SCENE } from './utils/constants';
@@ -19,7 +19,10 @@ const RouterComponent = () =>
         key={SETTINGS}
         component={Settings}
         title="Settings"
-        onLeft={() => Actions[WEATHER]()}
+        onExit={() => {
+          console.log("back");
+          Actions.pop( {refresh: {isMetric: false} })
+        }}
       />
     </Scene>
   </Router>;

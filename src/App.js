@@ -8,7 +8,7 @@ import utils from './utils/methods';
 import styles from './styles/app';
 // import { KEY } from './utils/constants';
 
-const TASK_PERIOD = 900;
+const TASK_PERIOD = 1*60*60;
 
 BackgroundTask.define(async () => {
 
@@ -59,6 +59,8 @@ export default class App extends Component {
     //BackgroundJob.cancelAll();
     //-------------------------------------------//
     //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
+    utils.fetchSettings()
+      .then(settings => this.setState({ ...settings }));
     utils.getCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
@@ -76,6 +78,13 @@ export default class App extends Component {
      AppState.addEventListener('change', this.handleAppStateChange);
   }
 
+  componentWillReceiveProps(nextProps){
+    console.log("receiving props")
+    this.setState({ ...nextProps })
+    utils.fetchSettings()
+    .then(settings => this.setState({ ...settings }));
+  }
+
   handleAppStateChange = async (appState) => {
     if (appState === 'background') {
       this.setState({ isRaining: false });
@@ -88,6 +97,8 @@ export default class App extends Component {
       });
     }
     if (appState === 'active') {
+      utils.fetchSettings()
+      .then(settings => this.setState({ ...settings }));
       BackgroundTask.cancel();
       utils.getCachedItems().then(data => {
         this.setState({ ...data });
@@ -96,6 +107,8 @@ export default class App extends Component {
   }
 
   fetchWeather = () => {
+    utils.fetchSettings()
+    .then(settings => this.setState({ ...settings }));
     this.setState({ remark: false, isFetching: true });
     utils.refreshCachedItems().then(data => {
       this.setState({ ...data, isFetching: false });
@@ -122,8 +135,12 @@ export default class App extends Component {
     return <Text style = {{ fontSize:10 }}>Updated.</Text>;
   }
 
+  renderTemperature(isMetric,temp){
+    return isMetric ? temp + " \u2103" : (temp*1.8 + 32)+ " \u2109";
+  }
+
   render() {
-    const { isRaining, position, weather, lastUpdated, remark } = this.state;
+    const { isMetric, isRaining, position, weather, lastUpdated, remark } = this.state;
     if (!weather || !position) return <View style={ styles.spinnerContainer }><Spinner/></View>;
 
     return (
@@ -131,7 +148,7 @@ export default class App extends Component {
         <View style={{ height: 100 }} />
 
         <View style={styles.tempContainer}>
-          <Text style={styles.textStyle.temp}>{ Math.round(weather.list[0].main.temp)+"\u2103" }</Text>
+          <Text style={styles.textStyle.temp}>{this.renderTemperature(isMetric,Math.round(weather.list[0].main.temp))}</Text>
           <Text style={styles.textStyle.notes}>{weather.list[0].weather[0].description}</Text>
           <Text style={styles.textStyle.question}>Bring an umbrella?</Text>
           <Text style={styles.textStyle.answer}>{isRaining ? 'Probably...' : 'Nope'}</Text>

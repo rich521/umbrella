@@ -4,6 +4,7 @@ import { Actions } from 'react-native-router-flux';
 import { Card, CardSection, Button } from './components/common';
 import DateModal from './components/DateModal';
 import utils from './utils/methods';
+import { KEY } from './constants';
 
 const initDate = new Date();
 initDate.setHours('07');
@@ -16,6 +17,7 @@ class Settings extends Component {
     // persisted data
     isNotifyOn: false,
     date: sevenAmDate,
+    isMetric: true,
   }
 
   componentWillMount() {
@@ -25,13 +27,13 @@ class Settings extends Component {
 
   onDateChange = (date) => {
     const settingsData = { date, isNotifyOn: this.state.isNotifyOn };
-    utils.setSettings(settingsData)
+    utils.setLocalData(KEY.WEATHER,settingsData)
       .then(() => this.setState({ ...settingsData }));
   }
 
   onNotifyChange = (isNotifyOn) => {
     const settingsData = { date: this.state.date, isNotifyOn };
-    utils.setSettings(settingsData)
+    utils.setLocalData(KEY.WEATHER,settingsData)
       .then(() => this.setState({ ...settingsData }));
   };
 

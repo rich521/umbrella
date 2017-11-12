@@ -55,7 +55,7 @@ export default class App extends Component {
   }
   componentWillMount() {
     //=============debug purposes----------------//
-    //utils.deleteLocalData(KEY.WEATHER);
+    // utils.deleteLocalData(KEY.WEATHER);
     //BackgroundJob.cancelAll();
     //-------------------------------------------//
     //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});

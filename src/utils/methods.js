@@ -63,9 +63,7 @@ const utils = {
       // check each item, then refetch if needed
       position = await utils.getCurrentPosition();
       weather = await utils.getCurrentWeather(position.coords);
-      console.log(weather);
       let { description, isRaining } = await utils.retrieveDayForecast(weather,weather.cnt);
-      console.log(isRaining);
       lastUpdated = await utils.getCurrentTime();
 
       await utils.setLocalData(KEY.WEATHER, { position, weather, lastUpdated, description, isRaining });

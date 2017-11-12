@@ -15,9 +15,10 @@ BackgroundTask.define(async () => {
   BackgroundTask.cancel(); // ios/android
 
   const decision = await utils.getCachedItems();
+  const notif_msg = (decision.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
 
   PushNotification.localNotification({
-    title: "",
+    title: notif_msg,
     message: `weather: ${decision.weather.list[0].main.temp}
     ${new Date()}`, // (required)
     playSound: false,

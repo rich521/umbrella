@@ -40,12 +40,10 @@ const utils = {
     });
   },
 
-  getCurrentWeather: async (
-    // {latitude,longitude}
-  ) => {
-    // const URL_BASE = 'https://api.openweathermap.org/data/2.5/forecast?';
-    const url = 'https://samples.openweathermap.org/data/2.5/forecast?lat=35&lon=139&appid=b1b15e88fa797225412429c1c50c122a1';
-    // const url = `${URL_BASE}lat=${latitude}&lon=${longitude}&appid=${API}&units=metric`;
+  getCurrentWeather: async ({latitude,longitude}) => {
+    const URL_BASE = 'https://api.openweathermap.org/data/2.5/forecast?';
+    // const url = 'https://samples.openweathermap.org/data/2.5/forecast?lat=35&lon=139&appid=b1b15e88fa797225412429c1c50c122a1';
+    const url = `${URL_BASE}lat=${latitude}&lon=${longitude}&appid=${API}&units=metric`;
     return new Promise((resolve) => {
       fetch(url).then(response => {
         const bodyText = response._bodyText;

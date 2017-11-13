@@ -1,16 +1,16 @@
-import { AsyncStorage, Platform } from 'react-native';
+import { AsyncStorage, Platform, Alert } from 'react-native';
 import API from './key'; // You must create your own key.js file IMPORTANT
 import { KEY } from './constants';
 
 const REFRESH_TIME = 60000; // time required before second refresh (ms)
-
 const utils = {
   isAndroid: () => Platform.OS === 'android',
 
   getCurrentPosition: () => {
-    return new Promise((resolve) => {
+    const positionPromise = new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(position => resolve(position));
     });
+    return positionPromise;
   },
 
   getCurrentWeather: async ({latitude,longitude}) => {
@@ -27,6 +27,14 @@ const utils = {
           resolve(response.data);
         }
       }).catch((error) => {
+          Alert.alert(
+            'Error',
+            'Error retrieving weather. Try refreshing again',
+            [
+              {text: 'OK'},
+            ],
+            { cancelable: true }
+          );
         throw new Error(error)
       });
     });
@@ -37,15 +45,20 @@ const utils = {
     const d = new Date();
     const z = n => n.toString().length === 1 ? `0${n}` : n ;// Zero pad
     const date = `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; // returns (2017-11-10 ie YYYY-MM-DD)
-
-    let description = "";
+    const temp_minMax = {
+      min:1000,
+      max:-1000,
+    }
+    let weatherDescription = "";
     for (let i=0; i< count; i++){
       if (data.list[i].dt_txt.indexOf(date) === -1) break; //find if the items in the list are todays forcast only
-      description = `${description} ${data.list[i].weather[0].description}`; //append descriptions into one variable
+      temp_minMax.min = data.list[i].main.temp_min<temp_minMax.min? data.list[i].main.temp_min : temp_minMax.min;
+      temp_minMax.max = data.list[i].main.temp_max>temp_minMax.max? data.list[i].main.temp_max : temp_minMax.max;
+      weatherDescription = `${weatherDescription} ${data.list[i].weather[0].description}`; //append descriptions into one variable
     }
     let isRaining = false;
-    if( description.indexOf("rain") >= 0 ) isRaining = true;
-    return { description, isRaining };
+    if( weatherDescription.indexOf("rain") >= 0 ) isRaining = true;
+    return { description:{ weatherDescription, temp_minMax }, isRaining };
   },
 
   getCurrentTime: () => new Date(),
@@ -61,8 +74,18 @@ const utils = {
 
     if (utils.getCurrentTime() - new Date(lastUpdated) > REFRESH_TIME) { //refresh time limit
       // check each item, then refetch if needed
-      position = await utils.getCurrentPosition();
+      position = await utils.getCurrentPosition().catch(()=>{
+        Alert.alert(
+          'Error',
+          'Error retrieving location. Try refreshing again',
+          [
+            {text: 'OK'},
+          ],
+          { cancelable: true }
+        );
+      });
       weather = await utils.getCurrentWeather(position.coords);
+      console.log (weather);
       let { description, isRaining } = await utils.retrieveDayForecast(weather,weather.cnt);
       lastUpdated = await utils.getCurrentTime();
 

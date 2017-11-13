@@ -29,20 +29,23 @@ class Settings extends Component {
 
   onDateChange = (date) => {
     const settingsData = { date, isNotifyOn: this.state.isNotifyOn, isMetric: this.state.isMetric };
-    utils.setLocalData(KEY.SETTINGS,settingsData)
-      .then(() => this.setState({ ...settingsData }));
+    this.setState({ ...settingsData });
   }
 
   onNotifyChange = (isNotifyOn) => {
     const settingsData = { date: this.state.date, isNotifyOn , isMetric: this.state.isMetric };
-    utils.setLocalData(KEY.SETTINGS,settingsData)
-      .then(() => this.setState({ ...settingsData }));
+    this.setState({ ...settingsData });
   };
 
   onMetricChange = (isMetric) => {
     const settingsData = { date: this.state.date, isMetric, isNotifyOn: this.state.isNotifyOn };
-    utils.setLocalData(KEY.SETTINGS,settingsData)
-      .then(() => this.setState({ ...settingsData }));
+    this.setState({ ...settingsData });
+  };
+
+  saveChanges = () => {
+    const {isMetric, isNotifyOn, date} = this.state;
+    utils.setLocalData(KEY.SETTINGS,{isMetric, isNotifyOn, date});
+    Actions.pop( {refresh: {isMetric, isNotifyOn, date} });
   };
 
   render() {
@@ -78,7 +81,7 @@ class Settings extends Component {
 
         </View>
         <View style={{ paddingBottom: 20 }}>
-          <Button onPress={() => Actions.pop( {refresh: {isMetric} })}>Done</Button>
+          <Button onPress={() => this.saveChanges()}>Done</Button>
         </View>
       </View>
     );

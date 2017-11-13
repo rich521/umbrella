@@ -64,13 +64,18 @@ const DateModal = ({
         </Modal>
 
         <TouchableHighlight onPress={() => onClickDateTime()}>
-          <View>
-            <Text>{`${formattedDate.getHours()}:${minString}`}</Text>
-          </View>
+           <Text style={styles.time}>{`${formattedDate.getHours()}:${minString}`}</Text>
         </TouchableHighlight>
 
       </View>
   );
+};
+
+const styles = {
+  time: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  }
 };
 
 DateModal.propTypes = {

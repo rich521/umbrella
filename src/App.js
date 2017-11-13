@@ -75,13 +75,13 @@ export default class App extends Component {
     });
 
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
-    PushNotification.localNotification({
-      title: "No umbrella needed.",
-      largeIcon: "icon",
-      smallIcon: "icon",
-      message: "Enjoy your day ;)", // (required)
-      playSound: false,
-    });
+    // PushNotification.localNotification({
+    //   title: "No umbrella needed.",
+    //   largeIcon: "icon",
+    //   smallIcon: "icon",
+    //   message: "Enjoy your day ;)", // (required)
+    //   playSound: false,
+    // });
   }
   componentDidMount() {
      AppState.addEventListener('change', this.handleAppStateChange);

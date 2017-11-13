@@ -19,7 +19,7 @@ class Settings extends Component {
     // persisted data
     isNotifyOn: false,
     date: sevenAmDate,
-    isMetric: true,
+    isMetric: false,
   }
 
   componentWillMount() {
@@ -28,19 +28,19 @@ class Settings extends Component {
   }
 
   onDateChange = (date) => {
-    const settingsData = { date, isNotifyOn: this.state.isNotifyOn };
+    const settingsData = { date, isNotifyOn: this.state.isNotifyOn, isMetric: this.state.isMetric };
     utils.setLocalData(KEY.SETTINGS,settingsData)
       .then(() => this.setState({ ...settingsData }));
   }
 
   onNotifyChange = (isNotifyOn) => {
-    const settingsData = { date: this.state.date, isNotifyOn };
+    const settingsData = { date: this.state.date, isNotifyOn , isMetric: this.state.isMetric };
     utils.setLocalData(KEY.SETTINGS,settingsData)
       .then(() => this.setState({ ...settingsData }));
   };
 
   onMetricChange = (isMetric) => {
-    const settingsData = { date: this.state.date, isMetric };
+    const settingsData = { date: this.state.date, isMetric, isNotifyOn: this.state.isNotifyOn };
     utils.setLocalData(KEY.SETTINGS,settingsData)
       .then(() => this.setState({ ...settingsData }));
   };

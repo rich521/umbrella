@@ -156,16 +156,14 @@ export default class App extends Component {
     const { isMetric, isRaining, position, weather, lastUpdated, remark } = this.state;
     if (!weather || !position) return <View style={ styles.spinnerContainer }><Spinner/></View>;
 
-    const tempInCelcius = Math.round(weather.list[0].main.temp);
     return (
       <View style={styles.container}>
         <View style={{ height: 100 }} />
 
         <View style={styles.tempContainer}>
           <Text style={styles.textStyle.temp}>
-            <Text>{tempInCelcius}</Text>
+            <Text>{this.renderTemperature()}</Text>
             <Text style={styles.textStyle.unit}>{isMetric ? " \u2103" : " \u2109"}</Text>
-            {/* {this.renderTemperature(isMetric)} */}
           </Text>
           <Text style={styles.textStyle.notes}>{weather.list[0].weather[0].description}</Text>
           <Text style={styles.textStyle.question}>Bring an umbrella?</Text>

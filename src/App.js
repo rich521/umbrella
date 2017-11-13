@@ -9,23 +9,24 @@ import utils from './utils/methods';
 import styles, { fontPrimaryColor } from './styles/app';
 // import { KEY } from './utils/constants';
 
-const TASK_PERIOD = 1 * 60* 60;
+const TASK_PERIOD = 24 * 60* 60;
 const ICON_SIZE = 35;
 const RefreshIcon = <Icon name="autorenew" size={ICON_SIZE} color={fontPrimaryColor} />;
 const SettingsIcon = <Icon name="settings" size={ICON_SIZE} color={fontPrimaryColor} />;
 
 BackgroundTask.define(async () => {
-
   BackgroundTask.cancel(); // ios/android
 
-  const decision = await utils.getCachedItems();
-  const notif_msg = (decision.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
+  const refreshData = await utils.refreshCachedItems();
+  const notif_msg = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
 
   PushNotification.localNotification({
     title: notif_msg,
-    message: `weather: ${decision.weather.list[0].main.temp}
-    ${new Date()}`, // (required)
+    message: `Temp: ${refreshData.weather.list[0].main.temp}
+    ${refreshData.weather.list[0].weather[0].description}`, // (required)
     playSound: false,
+    largeIcon: "icon",
+    smallIcon: "icon",
   });
 
   BackgroundTask.schedule({
@@ -145,12 +146,11 @@ export default class App extends Component {
     return <Text style={styles.updateText}>Updated.</Text>;
   }
 
-  // renderTemperature(isMetric, temp) {
-  //   return (
-
-  //   );
-  //   // return isMetric ? temp + " \u2103" : (temp * 1.8 + 32) + " \u2109";
-  // }
+  renderTemperature() {
+    const { isMetric, weather } = this.state;
+    const tempInCelcius = Math.round(weather.list[0].main.temp);
+    return isMetric ? tempInCelcius  : (tempInCelcius * 1.8 + 32) ;
+  }
 
   render() {
     const { isMetric, isRaining, position, weather, lastUpdated, remark } = this.state;
@@ -164,7 +164,7 @@ export default class App extends Component {
         <View style={styles.tempContainer}>
           <Text style={styles.textStyle.temp}>
             <Text>{tempInCelcius}</Text>
-            <Text style={styles.textStyle.unit}>{" \u2103"}</Text>
+            <Text style={styles.textStyle.unit}>{isMetric ? " \u2103" : " \u2109"}</Text>
             {/* {this.renderTemperature(isMetric)} */}
           </Text>
           <Text style={styles.textStyle.notes}>{weather.list[0].weather[0].description}</Text>

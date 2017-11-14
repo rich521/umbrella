@@ -20,8 +20,8 @@ BackgroundTask.define(async () => {
   const refreshData = await utils.refreshCachedItems();
   const { isMetric } = await utils.fetchSettings();
   const notif_title = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
-  const minTemp = Math.round(refreshData.description.temp_minMax.min);
-  const maxTemp = Math.round(refreshData.description.temp_minMax.max);
+  const minTemp = Math.round(refreshData.description.tempMinMax.min);
+  const maxTemp = Math.round(refreshData.description.tempMinMax.max);
   const notif_message = minTemp===maxTemp ? `Expected temperature around ${minTemp}` : `Expected temperatures between ${minTemp} and ${maxTemp}`;
 
   PushNotification.localNotification({

@@ -22,12 +22,11 @@ BackgroundTask.define(async () => {
   const notif_title = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
   const minTemp = Math.round(refreshData.description.temp_minMax.min);
   const maxTemp = Math.round(refreshData.description.temp_minMax.max);
-  const notif_message = minTemp===maxTemp ? `Temperature around ${minTemp}` : `Temperature between ${minTemp} and ${maxTemp}`;
+  const notif_message = minTemp===maxTemp ? `Expected temperature around ${minTemp}` : `Expected temperatures between ${minTemp} and ${maxTemp}`;
 
   PushNotification.localNotification({
     title: notif_title,
-    message: `${notif_message} ${isMetric ? " \u2103" : " \u2109"}
-    ${refreshData.weather.list[0].weather[0].description}`, // (required)
+    message: `${notif_message} ${isMetric ? " \u2103" : " \u2109"} with ${refreshData.weather.list[0].weather[0].description}.`, // (required)
     playSound: false,
     largeIcon: "icon",
     smallIcon: "icon",
@@ -62,6 +61,7 @@ export default class App extends Component {
   componentWillUnmount(){
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
+
   componentWillMount() {
     //=============debug purposes----------------//
     // utils.deleteLocalData(KEY.WEATHER);
@@ -73,29 +73,20 @@ export default class App extends Component {
     utils.getCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
-
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
-    // PushNotification.localNotification({
-    //   title: "No umbrella needed.",
-    //   largeIcon: "icon",
-    //   smallIcon: "icon",
-    //   message: "Enjoy your day ;)", // (required)
-    //   playSound: false,
-    // });
   }
+
   componentDidMount() {
      AppState.addEventListener('change', this.handleAppStateChange);
   }
 
   componentWillReceiveProps(nextProps){
-    const {date, isNotifyOn} = nextProps;
-    if (date!=this.state.date | isNotifyOn!=this.state.isNotifyOn) this.scheduleBackgroundTask(isNotifyOn);
+    const { date, isNotifyOn } = nextProps;
+    if (date!==this.state.date || isNotifyOn!==this.state.isNotifyOn) this.scheduleBackgroundTask(isNotifyOn);
     this.setState({ ...nextProps });
   }
 
   handleAppStateChange = async (appState) => {
-    // if (appState === 'background') {
-    // }
     if (appState === 'active') {
       utils.fetchSettings()
       .then(settings => this.setState({ ...settings }));
@@ -120,11 +111,10 @@ export default class App extends Component {
 
   fetchWeather = () => {
     utils.fetchSettings()
-    .then(settings => this.setState({ ...settings }));
+      .then(settings => this.setState({ ...settings }));
     this.setState({ remark: false, isFetching: true });
     utils.refreshCachedItems().then(data => {
       this.setState({ ...data, isFetching: false });
-      //this.setState({ isRaining: true });
       return this.state.isRaining;
     });
   }
@@ -148,9 +138,7 @@ export default class App extends Component {
   }
 
   renderUpdateText({ remark, lastUpdated }){
-    if (remark) {
-     return <Text style={styles.updateText}>LastUpdated: {new Date(lastUpdated).toDateString()}.</Text>;
-    }
+    if (remark) return <Text style={styles.updateText}>LastUpdated: {new Date(lastUpdated).toDateString()}.</Text>;
     return <Text style={styles.updateText}>Updated.</Text>;
   }
 
@@ -180,7 +168,10 @@ export default class App extends Component {
 
         <View style={styles.settingsContainer}>
           {this.renderButton()}
-          {this.renderUpdateText({ remark, lastUpdated }) }
+          <View style={{alignItems: "center"}}>
+            {this.renderUpdateText({ remark, lastUpdated, weather }) }
+            <Text style={styles.updateText}>{weather.city.name}, {weather.city.country}</Text>
+          </View>
           <Button onPress={() => Actions.settings()} iconStyle>{SettingsIcon}</Button>
         </View>
       </View>

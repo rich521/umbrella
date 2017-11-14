@@ -14,11 +14,6 @@ const utils = {
           {timeout: 5000}
         );
         });
-      //   navigator.geolocation.getCurrentPosition(
-      //     (position) => { resolve(position) },
-      //     (err) => { reject(err) },
-      //   );
-      // });
       return positionPromise;
     } catch (err) {
       Alert.alert('Error','Error retrieving location. Try refreshing again',[{text: 'OK'}]);
@@ -75,31 +70,22 @@ const utils = {
 
   refreshCachedItems: async () => {
     const oldItems = await utils.getCachedItems(); //get local data
-
-    let newItems = {
-      isRaining : null,
-      description: null,
-      position: null,
-      weather : null,
-      lastUpdated : null,
-    };
+    let newItems = { isRaining : null, description: null, position: null, weather : null, lastUpdated : null };
 
     if (utils.getCurrentTime() - new Date(oldItems.lastUpdated) > REFRESH_TIME) { //refresh time limit
-      // check each item, then refetch if needed
-
       newItems.position = await utils.getCurrentPosition();
       if(newItems.position) newItems.weather = await utils.getCurrentWeather(newItems.position.coords);
       if (newItems.weather){
-      const { newDescription, newIsRaining } = await utils.retrieveDayForecast(newItems.weather,newItems.weather.cnt);
-      newItems = { ...newItems, description: newDescription, isRaining: newIsRaining };
-      newItems.lastUpdated = await utils.getCurrentTime();
+        const { newDescription, newIsRaining } = await utils.retrieveDayForecast(newItems.weather,newItems.weather.cnt);
+        newItems = { ...newItems, description: newDescription, isRaining: newIsRaining };
+        newItems.lastUpdated = await utils.getCurrentTime();
       }
 
       if (newItems.weather && newItems.position && newItems.description ){
         await utils.setLocalData(KEY.WEATHER, newItems);
         return newItems;
       }else{
-        await utils.setLocalData(KEY.WEATHER, {... oldItems, remark: true });
+        await utils.setLocalData(KEY.WEATHER, { ... oldItems, remark: true });
         return oldItems;
       }
     }
@@ -115,10 +101,11 @@ const utils = {
       const weatherData = {
         isRaining:false,
         description:'',
-        position, // TODO catch
+        position,
         weather : await utils.getCurrentWeather(position.coords),
         lastUpdated : await utils.getCurrentTime(),
       };
+      if(!(weatherData.position && weatherData.weather)) return null; // if error occurs return null data
       await utils.setLocalData(KEY.WEATHER, weatherData);
       return weatherData;
     }

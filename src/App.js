@@ -52,7 +52,7 @@ export default class App extends Component {
       weather: null,
       lastUpdated: null,
       /* SettingStorage */
-      reminderOn: false,
+      isNotifyOn: false,
       date: new Date('2017-01-01T07:00:00.000Z'),
       isMetric : true,
     };

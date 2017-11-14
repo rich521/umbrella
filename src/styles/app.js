@@ -34,9 +34,11 @@ const styles = {
         },
     },
     spinnerContainer: {
+      backgroundColor: 'white',
       flex: 1,
       padding: 5,
-      justifyContent: 'center',
+      justifyContent: 'space-between',
+      alignItems: 'center',
       position:'relative',
     },
     tempContainer: {

@@ -70,8 +70,9 @@ export default class App extends Component {
     //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
     utils.fetchSettings()
       .then(settings => this.setState({ ...settings }));
+    this.setState({ isFetching: true });
     utils.getCachedItems().then(data => {
-      this.setState({ ...data , remark:true});
+      this.setState({ ...data , remark: true, isFetching: false});
     });
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
   }
@@ -124,7 +125,7 @@ export default class App extends Component {
   renderButton() { //If already fetching for weather, spinner will appear.
     if(this.state.isFetching) {
       return (
-        <View style = {styles.tempContainer}>
+        <View style = {{width: ICON_SIZE}}>
           <Spinner size="small" />
         </View>
       );
@@ -149,8 +150,14 @@ export default class App extends Component {
   }
 
   render() {
-    const { isMetric, isRaining, position, weather, lastUpdated, remark } = this.state;
-    if (!weather || !position) return <View style={ styles.spinnerContainer }><Spinner/></View>;
+    const { isMetric, isRaining, position, weather, lastUpdated, remark, isFetching } = this.state;
+    if (!weather || !position) return (
+      <View style={ styles.spinnerContainer }>
+        <View style={{ height: 100 }} />
+        {(isFetching) ? <Spinner/> : this.renderButton()}
+        <View style={{ height: 100 }} />
+      </View>
+    );
 
     return (
       <View style={styles.container}>

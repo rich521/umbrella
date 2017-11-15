@@ -85,12 +85,12 @@ const utils = {
         await utils.setLocalData(KEY.WEATHER, newItems);
         return newItems;
       }else{
-        await utils.setLocalData(KEY.WEATHER, { ... oldItems, remark: true });
+        await utils.setLocalData(KEY.WEATHER, { ...oldItems, remark: true });
         return oldItems;
       }
     }
 
-    return { ... oldItems, remark: true };
+    return { ...oldItems, remark: true };
   },
 
   getCachedItems: async () => {

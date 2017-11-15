@@ -19,21 +19,22 @@ BackgroundTask.define(async () => {
 
   const refreshData = await utils.refreshCachedItems();
   const { isMetric } = await utils.fetchSettings();
-  const notif_title = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
+  const notificationTitle = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
   const minTemp = Math.round(refreshData.description.tempMinMax.min);
   const maxTemp = Math.round(refreshData.description.tempMinMax.max);
-  const notif_message = minTemp===maxTemp ? `Expected temperature around ${minTemp}` : `Expected temperatures between ${minTemp} and ${maxTemp}`;
+  const notificationMessage = minTemp===maxTemp ? `Expected temperature around ${minTemp}` : `Expected temperatures between ${minTemp} and ${maxTemp}`;
+  const notoficationDescription = refreshData.isRaining ? refreshData.description.weatherDescription : refreshData.weather.list[0].weather[0].description;
 
   PushNotification.localNotification({
-    title: notif_title,
-    message: `${notif_message} ${isMetric ? " \u2103" : " \u2109"} with ${refreshData.weather.list[0].weather[0].description}.`, // (required)
+    title: notificationTitle,
+    message: `${notificationMessage} ${isMetric ? " \u2103" : " \u2109"} with ${notoficationDescription}.`, // (required)
     playSound: false,
     largeIcon: "icon",
-    smallIcon: "icon",
+    smallIcon: "ic_launcher",
   });
 
   BackgroundTask.schedule({
-      period: TASK_PERIOD,
+    period: TASK_PERIOD,
   });
   BackgroundTask.finish();
 });
@@ -154,15 +155,13 @@ export default class App extends Component {
     const { isMetric, isRaining, position, weather, lastUpdated, remark, isFetching } = this.state;
     if (!weather || !position) return (
       <View style={ styles.spinnerContainer }>
-        <View style={{ height: 100 }} />
         {(isFetching) ? <Spinner/> : this.renderButton()}
-        <View style={{ height: 100 }} />
       </View>
     );
 
     return (
       <View style={styles.container}>
-        <View style={{ height: 100 }} />
+        <View/>
 
         <View style={styles.tempContainer}>
           <Text style={styles.textStyle.temp}>
@@ -176,7 +175,7 @@ export default class App extends Component {
 
         <View style={styles.settingsContainer}>
           {this.renderButton()}
-          <View style={{alignItems: "center"}}>
+          <View>
             {this.renderUpdateText({ remark, lastUpdated, weather }) }
             <Text style={styles.updateText}>{weather.city.name}, {weather.city.country}</Text>
           </View>

@@ -65,9 +65,9 @@ export default class App extends Component {
   componentWillMount() {
     //=============debug purposes----------------//
     // utils.deleteLocalData(KEY.WEATHER);
-    //BackgroundJob.cancelAll();
-    //-------------------------------------------//
     //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
+    //-------------------------------------------//
+    BackgroundTask.cancel();
     utils.fetchSettings()
       .then(settings => this.setState({ ...settings }));
     this.setState({ isFetching: true });
@@ -82,12 +82,13 @@ export default class App extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    const { date, isNotifyOn } = nextProps;
-    if (date!==this.state.date || isNotifyOn!==this.state.isNotifyOn) this.scheduleBackgroundTask(isNotifyOn);
     this.setState({ ...nextProps });
   }
 
   handleAppStateChange = async (appState) => {
+    if (appState === 'background') {
+      this.scheduleBackgroundTask(this.state.isNotifyOn);
+    }
     if (appState === 'active') {
       utils.fetchSettings()
       .then(settings => this.setState({ ...settings }));

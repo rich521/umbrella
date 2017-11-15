@@ -90,7 +90,7 @@ const utils = {
       }
     }
 
-    return {... oldItems, remark: true };
+    return { ... oldItems, remark: true };
   },
 
   getCachedItems: async () => {

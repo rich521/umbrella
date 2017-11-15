@@ -56,7 +56,7 @@ const utils = {
       let mintemp = list.main.temp_min;
       let maxTemp = list.main.temp_max;
       const dateText = list.dt_txt;
-      
+
       if (dateText.indexOf(date) === -1) {
         if(weatherDescription === ""){
           weatherDescription = list.weather[0].description;

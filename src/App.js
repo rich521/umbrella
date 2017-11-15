@@ -9,7 +9,7 @@ import utils from './utils/methods';
 import styles, { fontPrimaryColor } from './styles/app';
 // import { KEY } from './utils/constants';
 
-const TASK_PERIOD = 24 * 60* 60;
+const TASK_PERIOD = 24 * 3600;
 const ICON_SIZE = 35;
 const RefreshIcon = <Icon name="autorenew" size={ICON_SIZE} color={fontPrimaryColor} />;
 const SettingsIcon = <Icon name="settings" size={ICON_SIZE} color={fontPrimaryColor} />;
@@ -18,12 +18,15 @@ BackgroundTask.define(async () => {
   BackgroundTask.cancel(); // ios/android
 
   const refreshData = await utils.refreshCachedItems();
-  const notif_msg = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
+  const { isMetric } = await utils.fetchSettings();
+  const notif_title = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
+  const minTemp = Math.round(refreshData.description.temp_minMax.min);
+  const maxTemp = Math.round(refreshData.description.temp_minMax.max);
+  const notif_message = minTemp===maxTemp ? `Expected temperature around ${minTemp}` : `Expected temperatures between ${minTemp} and ${maxTemp}`;
 
   PushNotification.localNotification({
-    title: notif_msg,
-    message: `Temp: ${refreshData.weather.list[0].main.temp}
-    ${refreshData.weather.list[0].weather[0].description}`, // (required)
+    title: notif_title,
+    message: `${notif_message} ${isMetric ? " \u2103" : " \u2109"} with ${refreshData.weather.list[0].weather[0].description}.`, // (required)
     playSound: false,
     largeIcon: "icon",
     smallIcon: "icon",
@@ -58,6 +61,7 @@ export default class App extends Component {
   componentWillUnmount(){
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
+
   componentWillMount() {
     //=============debug purposes----------------//
     // utils.deleteLocalData(KEY.WEATHER);
@@ -69,29 +73,32 @@ export default class App extends Component {
     utils.getCachedItems().then(data => {
       this.setState({ ...data , remark:true});
     });
-
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
-    PushNotification.localNotification({
-      title: "No umbrella needed.",
-      largeIcon: "icon",
-      smallIcon: "icon",
-      message: "Enjoy your day ;)", // (required)
-      playSound: false,
-    });
   }
+
   componentDidMount() {
      AppState.addEventListener('change', this.handleAppStateChange);
   }
 
   componentWillReceiveProps(nextProps){
+    const { date, isNotifyOn } = nextProps;
+    if (date!==this.state.date || isNotifyOn!==this.state.isNotifyOn) this.scheduleBackgroundTask(isNotifyOn);
     this.setState({ ...nextProps });
-    utils.fetchSettings()
-    .then(settings => this.setState({ ...settings }));
   }
 
   handleAppStateChange = async (appState) => {
-    if (appState === 'background') {
-      this.setState({ isRaining: false });
+    if (appState === 'active') {
+      utils.fetchSettings()
+      .then(settings => this.setState({ ...settings }));
+      utils.getCachedItems().then(data => {
+        this.setState({ ...data });
+      });
+    }
+  }
+
+  scheduleBackgroundTask = async (isNotifyOn) => {
+    BackgroundTask.cancel();
+    if(isNotifyOn){
       const settings = await utils.fetchSettings();
       const remind_date = new Date(settings.date);
       const period_difference = new Date(remind_date - Date.now());
@@ -100,23 +107,14 @@ export default class App extends Component {
           period: remindLaterTimeInSecs, //calculate time to set (s)
       });
     }
-    if (appState === 'active') {
-      utils.fetchSettings()
-      .then(settings => this.setState({ ...settings }));
-      BackgroundTask.cancel();
-      utils.getCachedItems().then(data => {
-        this.setState({ ...data });
-      });
-    }
   }
 
   fetchWeather = () => {
     utils.fetchSettings()
-    .then(settings => this.setState({ ...settings }));
+      .then(settings => this.setState({ ...settings }));
     this.setState({ remark: false, isFetching: true });
     utils.refreshCachedItems().then(data => {
       this.setState({ ...data, isFetching: false });
-      //this.setState({ isRaining: true });
       return this.state.isRaining;
     });
   }
@@ -140,9 +138,7 @@ export default class App extends Component {
   }
 
   renderUpdateText({ remark, lastUpdated }){
-    if (remark) {
-     return <Text style={styles.updateText}>LastUpdated: {new Date(lastUpdated).toDateString()}.</Text>;
-    }
+    if (remark) return <Text style={styles.updateText}>LastUpdated: {new Date(lastUpdated).toDateString()}.</Text>;
     return <Text style={styles.updateText}>Updated.</Text>;
   }
 
@@ -156,16 +152,14 @@ export default class App extends Component {
     const { isMetric, isRaining, position, weather, lastUpdated, remark } = this.state;
     if (!weather || !position) return <View style={ styles.spinnerContainer }><Spinner/></View>;
 
-    const tempInCelcius = Math.round(weather.list[0].main.temp);
     return (
       <View style={styles.container}>
         <View style={{ height: 100 }} />
 
         <View style={styles.tempContainer}>
           <Text style={styles.textStyle.temp}>
-            <Text>{tempInCelcius}</Text>
+            <Text>{this.renderTemperature()}</Text>
             <Text style={styles.textStyle.unit}>{isMetric ? " \u2103" : " \u2109"}</Text>
-            {/* {this.renderTemperature(isMetric)} */}
           </Text>
           <Text style={styles.textStyle.notes}>{weather.list[0].weather[0].description}</Text>
           <Text style={styles.textStyle.question}>Bring an umbrella?</Text>
@@ -174,7 +168,10 @@ export default class App extends Component {
 
         <View style={styles.settingsContainer}>
           {this.renderButton()}
-          {this.renderUpdateText({ remark, lastUpdated }) }
+          <View style={{alignItems: "center"}}>
+            {this.renderUpdateText({ remark, lastUpdated, weather }) }
+            <Text style={styles.updateText}>{weather.city.name}, {weather.city.country}</Text>
+          </View>
           <Button onPress={() => Actions.settings()} iconStyle>{SettingsIcon}</Button>
         </View>
       </View>

@@ -9,28 +9,28 @@ const styles = {
     },
     textStyle: {
         temp: {
-            color: fontPrimaryColor,        
+            color: fontPrimaryColor,
             fontSize: 65,
             marginBottom: 30,
             textAlignVertical: 'top',
         },
         unit: {
             fontSize: 20,
-            textAlignVertical: 'top',            
+            textAlignVertical: 'top',
         },
         notes: {
             color: fontPrimaryColor,
             fontSize: 20,
-            marginBottom: 36,            
+            marginBottom: 36,
         },
         question: {
             marginBottom: 12,
-            color: fontSecondaryColor,            
-            fontStyle: 'italic',            
+            color: fontSecondaryColor,
+            fontStyle: 'italic',
         },
         answer: {
-            color: fontSecondaryColor,            
-            fontStyle: 'italic',            
+            color: fontSecondaryColor,
+            fontStyle: 'italic',
         },
     },
     spinnerContainer: {
@@ -58,4 +58,3 @@ const styles = {
   };
 
   export default styles;
-  

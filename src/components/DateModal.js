@@ -39,7 +39,9 @@ const DateModal = ({
 
   const formattedDate = new Date(date);
   const minutes = formattedDate.getMinutes();
+  const hours = formattedDate.getHours();
   const minString = (minutes + '').length === 1 ? `0${minutes}` : minutes;
+  const hourString = (hours + '').length === 1 ? `0${hours}` : hours;
 
   return (
     <View>
@@ -64,7 +66,7 @@ const DateModal = ({
         </Modal>
 
         <TouchableHighlight onPress={() => onClickDateTime()}>
-           <Text style={styles.time}>{`${formattedDate.getHours()}:${minString}`}</Text>
+           <Text style={styles.time}>{`${hourString}:${minString}`}</Text>
         </TouchableHighlight>
 
       </View>

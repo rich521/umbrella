@@ -3,6 +3,8 @@ import API from './key'; // You must create your own key.js file IMPORTANT
 import { KEY } from './constants';
 
 const REFRESH_TIME = 6000; // time required before second refresh (ms)
+const MAX_ITEMS_IN_DAY = 8;
+
 const utils = {
   isAndroid: () => Platform.OS === 'android',
 
@@ -51,16 +53,17 @@ const utils = {
     let weatherDescription = "";
     let isRaining = false;
 
-    for (let i=0; i< 8; i++){
+    for (let i = 0; i < MAX_ITEMS_IN_DAY; i++) {
       const list = data.list[i];
       let mintemp = list.main.temp_min;
       let maxTemp = list.main.temp_max;
       const dateText = list.dt_txt;
+      const responceDescription = list.weather[0].description;
 
       if (dateText.indexOf(date) === -1) {
-        if(weatherDescription === ""){
-          weatherDescription = list.weather[0].description;
-          isRaining = list.weather[0].description.indexOf("rain") >=0 ? true : false ;
+        if (i==0) {
+          weatherDescription = responceDescription;
+          isRaining = responceDescription.indexOf("rain") >= 0;
         }
         break;
       }
@@ -68,10 +71,10 @@ const utils = {
       tempMinMax.min = mintemp<tempMinMax.min? mintemp : tempMinMax.min;
       tempMinMax.max = maxTemp>tempMinMax.max? maxTemp : tempMinMax.max;
 
-      if( list.weather[0].description.indexOf("rain") >= 0 && !isRaining ){
-        const time = parseInt(dateText.slice(11,13));
-        const formattedTime = time>12 ? `${time-12} PM` : `${time} AM`;
-        weatherDescription = `${list.weather[0].description} around ${formattedTime}`; //append descriptions into one variable
+      if(responceDescription.indexOf("rain") >= 0 && !isRaining ){
+        const time = parseInt(dateText.slice(11, 13));
+        const formattedTime = time > 12 ? `${time - 12} PM` : `${time} AM`;
+        weatherDescription = `${responceDescription} around ${formattedTime}`;
         isRaining = true;
       }
     }

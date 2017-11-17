@@ -34,26 +34,30 @@ const styles = {
         },
     },
     spinnerContainer: {
+      backgroundColor: 'white',
       flex: 1,
       padding: 5,
-      justifyContent: 'center',
+      justifyContent: 'space-between',
+      alignItems: 'center',
       position:'relative',
     },
     tempContainer: {
+      paddingTop: 100,
       justifyContent: 'center',
       alignItems: 'center',
       margin: 10,
     },
     settingsContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingBottom: 5,
-        paddingLeft: 15,
-        paddingRight: 15,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingBottom: 5,
+      paddingLeft: 15,
+      paddingRight: 15,
     },
     updateText: {
-        fontSize: 10,
+      alignSelf: 'center',
+      fontSize: 10,
     },
   };
 

@@ -3,6 +3,9 @@ import API from './key'; // You must create your own key.js file IMPORTANT
 import { KEY } from './constants';
 
 const REFRESH_TIME = 6000; // time required before second refresh (ms)
+const MAX_ITEMS_IN_DAY = 8;
+const RAIN_PERCENT = 1;
+
 const utils = {
   isAndroid: () => Platform.OS === 'android',
 
@@ -14,11 +17,6 @@ const utils = {
           {timeout: 5000}
         );
         });
-      //   navigator.geolocation.getCurrentPosition(
-      //     (position) => { resolve(position) },
-      //     (err) => { reject(err) },
-      //   );
-      // });
       return positionPromise;
     } catch (err) {
       Alert.alert('Error','Error retrieving location. Try refreshing again',[{text: 'OK'}]);
@@ -45,7 +43,7 @@ const utils = {
     }
   },
 
-  retrieveDayForecast: (data,count) => {
+  retrieveDayForecast: (data) => {
     const d = new Date();
     const z = n => n.toString().length === 1 ? `0${n}` : n ;// Zero pad
     const date = `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}`; // returns (2017-11-10 ie YYYY-MM-DD)
@@ -54,14 +52,34 @@ const utils = {
       max:-1000,
     }
     let weatherDescription = "";
-    for (let i=0; i< count; i++){
-      if (data.list[i].dt_txt.indexOf(date) === -1) break; //find if the items in the list are todays forcast only
-      tempMinMax.min = data.list[i].main.temp_min<tempMinMax.min? data.list[i].main.temp_min : tempMinMax.min;
-      tempMinMax.max = data.list[i].main.temp_max>tempMinMax.max? data.list[i].main.temp_max : tempMinMax.max;
-      weatherDescription = `${weatherDescription} ${data.list[i].weather[0].description}`; //append descriptions into one variable
-    }
     let isRaining = false;
-    if( weatherDescription.indexOf("rain") >= 0 ) isRaining = true;
+
+    for (let i = 0; i < MAX_ITEMS_IN_DAY; i++) {
+      const list = data.list[i];
+      let mintemp = list.main.temp_min;
+      let maxTemp = list.main.temp_max;
+      const dateText = list.dt_txt;
+      const responceDescription = list.weather[0].description;
+      const rainValue = list.rain && list.rain["3h"] || 0; //check if rain value exists for ith forcast
+
+      tempMinMax.min = mintemp<tempMinMax.min? mintemp : tempMinMax.min;
+      tempMinMax.max = maxTemp>tempMinMax.max? maxTemp : tempMinMax.max;
+
+      if (dateText.indexOf(date) === -1) {
+        if (!weatherDescription) weatherDescription += data.list[0].weather[0].description;
+        if (i===0) isRaining = rainValue > 1;
+        break;
+      }
+       //find if the items in the list are todays forcast only
+
+      if(rainValue > RAIN_PERCENT && !isRaining ){
+        const time = parseInt(dateText.slice(11, 13));
+        const formattedTime = time > 12 ? `${time - 12} PM` : `${time} AM`;
+        weatherDescription = `${responceDescription} around ${formattedTime}`;
+        isRaining = true;
+      }
+    }
+    // if( weatherDescription.indexOf("rain") >= 0 ) isRaining = true;
     return { newDescription: { weatherDescription, tempMinMax }, newIsRaining: isRaining };
   },
 
@@ -75,36 +93,27 @@ const utils = {
 
   refreshCachedItems: async () => {
     const oldItems = await utils.getCachedItems(); //get local data
-
-    let newItems = {
-      isRaining : null,
-      description: null,
-      position: null,
-      weather : null,
-      lastUpdated : null,
-    };
+    let newItems = { isRaining : null, description: null, position: null, weather : null, lastUpdated : null };
 
     if (utils.getCurrentTime() - new Date(oldItems.lastUpdated) > REFRESH_TIME) { //refresh time limit
-      // check each item, then refetch if needed
-
       newItems.position = await utils.getCurrentPosition();
       if(newItems.position) newItems.weather = await utils.getCurrentWeather(newItems.position.coords);
+
       if (newItems.weather){
-      const { newDescription, newIsRaining } = await utils.retrieveDayForecast(newItems.weather,newItems.weather.cnt);
-      newItems = { ...newItems, description: newDescription, isRaining: newIsRaining };
-      newItems.lastUpdated = await utils.getCurrentTime();
+        const { newDescription, newIsRaining } = await utils.retrieveDayForecast(newItems.weather);
+        newItems = { ...newItems, description: newDescription, isRaining: newIsRaining };
+        newItems.lastUpdated = await utils.getCurrentTime();
       }
 
       if (newItems.weather && newItems.position && newItems.description ){
         await utils.setLocalData(KEY.WEATHER, newItems);
         return newItems;
       }else{
-        await utils.setLocalData(KEY.WEATHER, {... oldItems, remark: true });
+        await utils.setLocalData(KEY.WEATHER, { ...oldItems, remark: true });
         return oldItems;
       }
     }
-
-    return {... oldItems, remark: true };
+    return { ...oldItems, remark: true };
   },
 
   getCachedItems: async () => {
@@ -112,13 +121,16 @@ const utils = {
     const localStore = await utils.getLocalData(KEY.WEATHER);
     if (localStore === null) {
       const position = await utils.getCurrentPosition(); // TODO catch
+      const weather = await utils.getCurrentWeather(position.coords);
+      const { description, isRaining } = await utils.retrieveDayForecast(weather)
       const weatherData = {
-        isRaining:false,
-        description:'',
-        position, // TODO catch
-        weather : await utils.getCurrentWeather(position.coords),
+        position,
+        weather,
+        description,
+        isRaining,
         lastUpdated : await utils.getCurrentTime(),
       };
+      if(!(position && weather)) return null; // if error occurs return null data
       await utils.setLocalData(KEY.WEATHER, weatherData);
       return weatherData;
     }

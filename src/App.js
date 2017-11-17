@@ -19,21 +19,22 @@ BackgroundTask.define(async () => {
 
   const refreshData = await utils.refreshCachedItems();
   const { isMetric } = await utils.fetchSettings();
-  const notif_title = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
-  const minTemp = Math.round(refreshData.description.temp_minMax.min);
-  const maxTemp = Math.round(refreshData.description.temp_minMax.max);
-  const notif_message = minTemp===maxTemp ? `Expected temperature around ${minTemp}` : `Expected temperatures between ${minTemp} and ${maxTemp}`;
+  const notificationTitle = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
+  const minTemp = Math.round(refreshData.description.tempMinMax.min);
+  const maxTemp = Math.round(refreshData.description.tempMinMax.max);
+  const degreeNotation = isMetric ? " \u2103" : " \u2109";
+  const notificationMessage = minTemp===maxTemp ? `Expected temperature around ${minTemp}${degreeNotation}` : `Expected temperatures between ${minTemp}${degreeNotation} and ${maxTemp}${degreeNotation}`;
 
   PushNotification.localNotification({
-    title: notif_title,
-    message: `${notif_message} ${isMetric ? " \u2103" : " \u2109"} with ${refreshData.weather.list[0].weather[0].description}.`, // (required)
+    title: notificationTitle,
+    message: `${notificationMessage} with ${refreshData.description.weatherDescription}.`, // (required)
     playSound: false,
-    largeIcon: "icon",
+    // largeIcon: "icon2",
     smallIcon: "icon",
   });
 
   BackgroundTask.schedule({
-      period: TASK_PERIOD,
+    period: TASK_PERIOD,
   });
   BackgroundTask.finish();
 });
@@ -52,7 +53,7 @@ export default class App extends Component {
       weather: null,
       lastUpdated: null,
       /* SettingStorage */
-      reminderOn: false,
+      isNotifyOn: false,
       date: new Date('2017-01-01T07:00:00.000Z'),
       isMetric : true,
     };
@@ -65,13 +66,14 @@ export default class App extends Component {
   componentWillMount() {
     //=============debug purposes----------------//
     // utils.deleteLocalData(KEY.WEATHER);
-    //BackgroundJob.cancelAll();
-    //-------------------------------------------//
     //utils.setLocalData(KEY.WEATHER, { description:'', isRaining:false});
+    //-------------------------------------------//
+    BackgroundTask.cancel();
     utils.fetchSettings()
       .then(settings => this.setState({ ...settings }));
+    this.setState({ isFetching: true });
     utils.getCachedItems().then(data => {
-      this.setState({ ...data , remark:true});
+      this.setState({ ...data , remark: true, isFetching: false});
     });
     if (PushNotification) PushNotification.cancelAllLocalNotifications();
   }
@@ -81,12 +83,13 @@ export default class App extends Component {
   }
 
   componentWillReceiveProps(nextProps){
-    const { date, isNotifyOn } = nextProps;
-    if (date!==this.state.date || isNotifyOn!==this.state.isNotifyOn) this.scheduleBackgroundTask(isNotifyOn);
     this.setState({ ...nextProps });
   }
 
   handleAppStateChange = async (appState) => {
+    if (appState === 'background') {
+      this.scheduleBackgroundTask(this.state.isNotifyOn);
+    }
     if (appState === 'active') {
       utils.fetchSettings()
       .then(settings => this.setState({ ...settings }));
@@ -124,7 +127,7 @@ export default class App extends Component {
   renderButton() { //If already fetching for weather, spinner will appear.
     if(this.state.isFetching) {
       return (
-        <View style = {styles.tempContainer}>
+        <View style = {{width: ICON_SIZE}}>
           <Spinner size="small" />
         </View>
       );
@@ -149,12 +152,16 @@ export default class App extends Component {
   }
 
   render() {
-    const { isMetric, isRaining, position, weather, lastUpdated, remark } = this.state;
-    if (!weather || !position) return <View style={ styles.spinnerContainer }><Spinner/></View>;
+    const { isMetric, isRaining, position, weather, lastUpdated, remark, isFetching } = this.state;
+    if (!weather || !position) return (
+      <View style={ styles.spinnerContainer }>
+        {(isFetching) ? <Spinner/> : this.renderButton()}
+      </View>
+    );
 
     return (
       <View style={styles.container}>
-        <View style={{ height: 100 }} />
+        <View/>
 
         <View style={styles.tempContainer}>
           <Text style={styles.textStyle.temp}>
@@ -162,13 +169,13 @@ export default class App extends Component {
             <Text style={styles.textStyle.unit}>{isMetric ? " \u2103" : " \u2109"}</Text>
           </Text>
           <Text style={styles.textStyle.notes}>{weather.list[0].weather[0].description}</Text>
-          <Text style={styles.textStyle.question}>Bring an umbrella?</Text>
-          <Text style={styles.textStyle.answer}>{isRaining ? 'Probably...' : 'Nope'}</Text>
+          <Text style={styles.textStyle.question}>Need an umbrella?</Text>
+          <Text style={styles.textStyle.answer}>{isRaining ? 'Probably...' : 'Not really.'}</Text>
         </View>
 
         <View style={styles.settingsContainer}>
           {this.renderButton()}
-          <View style={{alignItems: "center"}}>
+          <View>
             {this.renderUpdateText({ remark, lastUpdated, weather }) }
             <Text style={styles.updateText}>{weather.city.name}, {weather.city.country}</Text>
           </View>

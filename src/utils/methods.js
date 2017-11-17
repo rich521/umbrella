@@ -4,6 +4,7 @@ import { KEY } from './constants';
 
 const REFRESH_TIME = 6000; // time required before second refresh (ms)
 const MAX_ITEMS_IN_DAY = 8;
+const RAIN_PERCENT = 1;
 
 const utils = {
   isAndroid: () => Platform.OS === 'android',
@@ -59,19 +60,19 @@ const utils = {
       let maxTemp = list.main.temp_max;
       const dateText = list.dt_txt;
       const responceDescription = list.weather[0].description;
-      const rainValue = list.rain ? list.rain["3h"] : 0; //check if rain value exists for ith forcast
+      const rainValue = list.rain && list.rain["3h"] || 0; //check if rain value exists for ith forcast
 
       tempMinMax.min = mintemp<tempMinMax.min? mintemp : tempMinMax.min;
       tempMinMax.max = maxTemp>tempMinMax.max? maxTemp : tempMinMax.max;
 
       if (dateText.indexOf(date) === -1) {
         if (!weatherDescription) weatherDescription += data.list[0].weather[0].description;
-        if (i==0) isRaining = rainValue > 1;
+        if (i===0) isRaining = rainValue > 1;
         break;
       }
        //find if the items in the list are todays forcast only
 
-      if(rainValue > 1 && !isRaining ){
+      if(rainValue > RAIN_PERCENT && !isRaining ){
         const time = parseInt(dateText.slice(11, 13));
         const formattedTime = time > 12 ? `${time - 12} PM` : `${time} AM`;
         weatherDescription = `${responceDescription} around ${formattedTime}`;

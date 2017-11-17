@@ -22,15 +22,15 @@ BackgroundTask.define(async () => {
   const notificationTitle = (refreshData.isRaining) ? "We would recommend you take an umbrella" : "No umbrella needed";
   const minTemp = Math.round(refreshData.description.tempMinMax.min);
   const maxTemp = Math.round(refreshData.description.tempMinMax.max);
-  const notificationMessage = minTemp===maxTemp ? `Expected temperature around ${minTemp}` : `Expected temperatures between ${minTemp} and ${maxTemp}`;
-  const notoficationDescription = refreshData.isRaining ? refreshData.description.weatherDescription : refreshData.weather.list[0].weather[0].description;
+  const degreeNotation = isMetric ? " \u2103" : " \u2109";
+  const notificationMessage = minTemp===maxTemp ? `Expected temperature around ${minTemp}${degreeNotation}` : `Expected temperatures between ${minTemp}${degreeNotation} and ${maxTemp}${degreeNotation}`;
 
   PushNotification.localNotification({
     title: notificationTitle,
-    message: `${notificationMessage} ${isMetric ? " \u2103" : " \u2109"} with ${notoficationDescription}.`, // (required)
+    message: `${notificationMessage} with ${refreshData.description.weatherDescription}.`, // (required)
     playSound: false,
-    largeIcon: "icon",
-    smallIcon: "ic_launcher",
+    // largeIcon: "icon2",
+    smallIcon: "icon",
   });
 
   BackgroundTask.schedule({
@@ -169,8 +169,8 @@ export default class App extends Component {
             <Text style={styles.textStyle.unit}>{isMetric ? " \u2103" : " \u2109"}</Text>
           </Text>
           <Text style={styles.textStyle.notes}>{weather.list[0].weather[0].description}</Text>
-          <Text style={styles.textStyle.question}>Bring an umbrella?</Text>
-          <Text style={styles.textStyle.answer}>{isRaining ? 'Probably...' : 'Nope'}</Text>
+          <Text style={styles.textStyle.question}>Need an umbrella?</Text>
+          <Text style={styles.textStyle.answer}>{isRaining ? 'Probably...' : 'Not really.'}</Text>
         </View>
 
         <View style={styles.settingsContainer}>

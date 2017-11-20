@@ -1,3 +1,5 @@
+import { fontPrimaryColor } from './app';
+
 const styles = {
     settingsContainer: {
         flex:1,
@@ -10,6 +12,7 @@ const styles = {
         marginBottom: 0,
     },
     textStyle: {
+        color: fontPrimaryColor,
         fontWeight: '400',
         fontSize: 15,
     },

@@ -9,6 +9,8 @@ import {
   TimePickerAndroid,
 } from 'react-native';
 import utils from '../utils/methods';
+import { Button } from './common';
+import styles from '../styles/dateModal';
 
 const DateModal = ({
   onDateChange,
@@ -51,33 +53,22 @@ const DateModal = ({
         visible={isDateVisible}
         onRequestClose={()=>null}
       >
-         <View style={{ marginTop: 22 }}>
-          <View>
-            <DatePickerIOS
-              date={formattedDate}
-              mode="time"
-              onDateChange={onDateChange}
-            />
-            <TouchableHighlight onPress={() => setDateVisible(false)}>
-              <Text>Done</Text>
-            </TouchableHighlight>
-          </View>
-         </View>
-        </Modal>
+        <View style={styles.container}>
+          <Text style={styles.title}>Set your reminder</Text>
+          <DatePickerIOS
+            date={formattedDate}
+            mode="time"
+            onDateChange={onDateChange}
+          />
+          <Button onPress={() => setDateVisible(false)}>Done</Button>
+        </View>
+      </Modal>
 
-        <TouchableHighlight onPress={() => onClickDateTime()}>
-           <Text style={styles.time}>{`${hourString}:${minString}`}</Text>
-        </TouchableHighlight>
-
-      </View>
+      <TouchableHighlight onPress={() => onClickDateTime()}>
+          <Text style={styles.time}>{`${hourString}:${minString}`}</Text>
+      </TouchableHighlight>
+    </View>
   );
-};
-
-const styles = {
-  time: {
-    fontWeight: 'bold',
-    fontSize: 16,
-  }
 };
 
 DateModal.propTypes = {

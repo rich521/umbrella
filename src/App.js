@@ -101,11 +101,11 @@ export default class App extends Component {
 
   scheduleBackgroundTask = async (isNotifyOn) => {
     BackgroundTask.cancel();
-    if(isNotifyOn){
+    if (isNotifyOn) {
       const settings = await utils.fetchSettings();
       const remind_date = new Date(settings.date);
       const period_difference = new Date(remind_date - Date.now());
-      const remindLaterTimeInSecs = (period_difference.getHours()*60*60 + period_difference.getMinutes()*60);
+      const remindLaterTimeInSecs = (period_difference.getHours() * 60 * 60 + period_difference.getMinutes() * 60);
       BackgroundTask.schedule({
           period: remindLaterTimeInSecs, //calculate time to set (s)
       });
@@ -125,9 +125,9 @@ export default class App extends Component {
 //------------------------------RENDER CODE-----------------------------------//
 
   renderButton() { //If already fetching for weather, spinner will appear.
-    if(this.state.isFetching) {
+    if (this.state.isFetching) {
       return (
-        <View style = {{width: ICON_SIZE}}>
+        <View style = {{ width: ICON_SIZE }}>
           <Spinner size="small" />
         </View>
       );

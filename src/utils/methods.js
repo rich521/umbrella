@@ -108,7 +108,7 @@ const utils = {
       if (newItems.weather && newItems.position && newItems.description ){
         await utils.setLocalData(KEY.WEATHER, newItems);
         return newItems;
-      }else{
+      } else {
         await utils.setLocalData(KEY.WEATHER, { ...oldItems, remark: true });
         return oldItems;
       }
@@ -155,10 +155,26 @@ const utils = {
     return JSON.parse(localSettings);
   },
 
-  setCachedSettings: async (settingData) => {
-    // Set the local settings
-    await utils.setLocalData(KEY.SETTINGS, settingData );
-  }
+  getTimeDifference: (date) => {
+    const diff = new Date(date - Date.now());
+    const hours = diff.getHours();
+    const mins = diff.getMinutes();
+    const totalMins = hours * 60 + mins;
+    return { hours, mins, totalMins };
+  },
+
+  getBackgroundProperties: async () => {
+    const settings = await utils.fetchSettings();
+    const remind_date = new Date(settings.date);
+    const diffObj = utils.getTimeDifference(remind_date);
+    return {
+      settings,
+      remindLaterTimeInSecs: diffObj.totalMins * 60,
+      hours: diffObj.hours,
+      mins: diffObj.mins,
+      isBeforeRemind: remind_date < new Date(),
+    };
+  },
 };
 
 export default utils;

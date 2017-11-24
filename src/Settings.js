@@ -44,7 +44,7 @@ class Settings extends Component {
 
   saveChanges = () => {
     const {isMetric, isNotifyOn, date} = this.state;
-    utils.setLocalData(KEY.SETTINGS,{isMetric, isNotifyOn, date});
+    utils.setLocalData(KEY.SETTINGS, {isMetric, isNotifyOn, date});
     Actions.pop( {refresh: {isMetric, isNotifyOn, date} });
   };
 

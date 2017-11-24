@@ -84,7 +84,7 @@ export default class App extends Component {
 
   fetchWeather = () => {
     utils.fetchSettings()
-      .then(key => this.setState({ [key]: key }));
+    .then(settings => this.setState({ ...settings }));
     this.setState({ remark: false, isFetching: true });
     utils.refreshCachedItems().then(data => {
       this.setState({ ...data, isFetching: false });

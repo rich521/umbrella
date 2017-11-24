@@ -17,6 +17,7 @@ class Settings extends Component {
   state = {
     isDateVisible: false,
     // persisted data
+    isNotifyPersistant: false,
     isNotifyOn: false,
     date: sevenAmDate,
     isMetric: false,
@@ -27,20 +28,13 @@ class Settings extends Component {
       .then(settings => this.setState({ ...settings }));
   }
 
-  onDateChange = (date) => {
-    const settingsData = { date, isNotifyOn: this.state.isNotifyOn, isMetric: this.state.isMetric };
-    this.setState({ ...settingsData });
-  }
+  onNotifyChange = (isNotifyOn) => this.setState({ ...this.state, isNotifyOn });
 
-  onNotifyChange = (isNotifyOn) => {
-    const settingsData = { date: this.state.date, isNotifyOn , isMetric: this.state.isMetric };
-    this.setState({ ...settingsData });
-  };
+  onNotifyPersistantChange = (isNotifyPeristant) => this.setState({ ...this.state, isNotifyPeristant });
 
-  onMetricChange = (isMetric) => {
-    const settingsData = { date: this.state.date, isMetric, isNotifyOn: this.state.isNotifyOn };
-    this.setState({ ...settingsData });
-  };
+  onMetricChange = (isMetric) => this.setState({ ...this.state, isMetric });
+
+  onDateChange = (date) => this.setState({ ...this.state, date });
 
   saveChanges = () => {
     const {isMetric, isNotifyOn, date} = this.state;
@@ -49,27 +43,48 @@ class Settings extends Component {
   };
 
   render() {
-    const { isMetric, isNotifyOn, date, isDateVisible } = this.state;
+    const { isNotifyPeristant, isNotifyOn, isMetric, date, isDateVisible } = this.state;
 
     return (
       <View style={styles.settingsContainer}>
         <View style={styles.settingsInner}>
           <Card>
             <CardSection style={settingsHeight}>
-              <Text style={styles.textStyle}>Notification</Text>
+              <View>
+                <Text style={styles.textStyle}>Notification</Text>
+                <Text style={styles.underTextStyle}>Will not notify in battery saving mode.</Text>
+              </View>
               <Switch
                 value={isNotifyOn}
                 onValueChange={this.onNotifyChange}
               />
             </CardSection>
             <CardSection style={settingsHeight}>
-              <Text style={styles.textStyle}>Metric Option ({"\u2103"})</Text>
               <View>
-                <Switch value={isMetric} onValueChange={this.onMetricChange} />
+                <Text style={styles.textStyle}>Notification Persistant</Text>
+                <Text style={styles.underTextStyle}>Notify even when umbrella is not needed.</Text>
+              </View>
+              <Switch
+                value={isNotifyPeristant}
+                onValueChange={this.onNotifyPersistantChange}
+              />
+            </CardSection>
+            <CardSection style={settingsHeight}>
+              <View>
+                <Text style={styles.textStyle}>Metric Option ({"\u2103"})</Text>
+                <Text style={styles.underTextStyle}>Choose between {"\u2103"} and {"\u2109"}.</Text>
+              </View>
+              <View>
+                <Switch
+                  value={isMetric}
+                  onValueChange={this.onMetricChange} />
               </View>
             </CardSection>
             <CardSection style={settingsHeight}>
-              <Text style={styles.textStyle}>Notify me at</Text>
+              <View>
+                <Text style={styles.textStyle}>Notify me at</Text>
+                <Text style={styles.underTextStyle}>Minimum time before Notification is 15 minutes. </Text>
+              </View>
               <DateModal
                 onDateChange={this.onDateChange}
                 date={new Date(date)}

@@ -16,6 +16,12 @@ const styles = {
         fontWeight: '400',
         fontSize: 15,
     },
+    underTextStyle: {
+        fontWeight: '200',
+        fontSize: 11,
+        color: 'grey',
+        // fontStyle: 'italic',
+    },
 };
 
 export default styles;

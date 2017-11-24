@@ -147,6 +147,7 @@ const utils = {
       const storedState = {
         date: sevenAmDate,
         isNotifyOn: false,
+        isNotifyPeristant: false,
         isMetric: true,
       };
       await utils.setLocalData(KEY.SETTINGS, storedState);

@@ -37,9 +37,9 @@ class Settings extends Component {
   onDateChange = (date) => this.setState({ ...this.state, date });
 
   saveChanges = () => {
-    const { isNotifyOn, isNotifyPeristant, isMetric, date } = this.state;
-    utils.setLocalData(KEY.SETTINGS,{isNotifyOn, isNotifyPeristant, isMetric, date});
-    Actions.pop( {refresh: {isNotifyOn, isNotifyPeristant, isMetric, date} });
+    const {isMetric, isNotifyOn, date} = this.state;
+    utils.setLocalData(KEY.SETTINGS, {isMetric, isNotifyOn, date});
+    Actions.pop( {refresh: {isMetric, isNotifyOn, date} });
   };
 
   render() {

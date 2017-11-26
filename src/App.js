@@ -7,37 +7,12 @@ import { Spinner, Button } from './components/common';
 import BackgroundTask from 'react-native-background-task';
 import utils from './utils/methods';
 import styles, { fontPrimaryColor } from './styles/app';
+import './utils/background';
 // import { KEY } from './utils/constants';
 
-const TASK_PERIOD = 24 * 3600;
 const ICON_SIZE = 35;
 const RefreshIcon = <Icon name="autorenew" size={ICON_SIZE} color={fontPrimaryColor} />;
 const SettingsIcon = <Icon name="settings" size={ICON_SIZE} color={fontPrimaryColor} />;
-
-BackgroundTask.define(async () => {
-  BackgroundTask.cancel(); // ios/android
-
-  const refreshData = await utils.refreshCachedItems();
-  const { isMetric, isNotifyPeristant } = await utils.fetchSettings();
-  const notificationTitle = (refreshData.isRaining) ? "We woulsd recommend you take an umbrella" : "No umbrella needed";
-  const minTemp = Math.round(refreshData.description.tempMinMax.min);
-  const maxTemp = Math.round(refreshData.description.tempMinMax.max);
-  const degreeNotation = isMetric ? " \u2103" : " \u2109";
-  const notificationMessage = minTemp===maxTemp ? `Expected temperature around ${minTemp}${degreeNotation}` : `Expected temperatures between ${minTemp}${degreeNotation} and ${maxTemp}${degreeNotation}`;
-  if ( refreshData.isRaining || isNotifyPeristant ){
-    PushNotification.localNotification({
-      title: notificationTitle,
-      message: `${notificationMessage} with ${refreshData.description.weatherDescription}.`, // (required)
-      playSound: false,
-      // largeIcon: "icon2",
-      smallIcon: "icon",
-    });
-  }
-  BackgroundTask.schedule({
-    period: TASK_PERIOD,
-  });
-  BackgroundTask.finish();
-});
 
 export default class App extends Component {
   // Default values
@@ -59,7 +34,7 @@ export default class App extends Component {
     };
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
 
@@ -102,19 +77,14 @@ export default class App extends Component {
   scheduleBackgroundTask = async (isNotifyOn) => {
     BackgroundTask.cancel();
     if (isNotifyOn) {
-      const settings = await utils.fetchSettings();
-      const remind_date = new Date(settings.date);
-      const period_difference = new Date(remind_date - Date.now());
-      const remindLaterTimeInSecs = (period_difference.getHours() * 60 * 60 + period_difference.getMinutes() * 60);
-      BackgroundTask.schedule({
-          period: remindLaterTimeInSecs, //calculate time to set (s)
-      });
+      const period = await utils.getBackgroundProperties().remindLaterTimeInSecs;
+      BackgroundTask.schedule({ period });
     }
   }
 
   fetchWeather = () => {
     utils.fetchSettings()
-      .then(settings => this.setState({ ...settings }));
+    .then(settings => this.setState({ ...settings }));
     this.setState({ remark: false, isFetching: true });
     utils.refreshCachedItems().then(data => {
       this.setState({ ...data, isFetching: false });

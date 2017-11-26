@@ -7,3 +7,7 @@ export const KEY = {
   WEATHER : '@localStore',
   SETTINGS : '@localSettings',
 };
+
+export const WORDS = {
+
+};

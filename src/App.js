@@ -66,6 +66,7 @@ export default class App extends Component {
       this.scheduleBackgroundTask(this.state.isNotifyOn);
     }
     if (appState === 'active') {
+      BackgroundTask.cancel();
       utils.fetchSettings()
       .then(settings => this.setState({ ...settings }));
       utils.getCachedItems().then(data => {

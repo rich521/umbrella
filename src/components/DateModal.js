@@ -1,5 +1,7 @@
 import React from 'react';
+import Toast from 'react-native-simple-toast';
 import PropTypes from 'prop-types';
+
 import {
   View,
   TouchableHighlight,
@@ -32,6 +34,17 @@ const DateModal = ({
        dateTime.setMinutes(minute);
        dateTime.setDate(dateTime.getDate() + 1);
        onDateChange(dateTime);
+       const period_difference = new Date(dateTime - Date.now());
+       const hour_difference = period_difference.getHours();
+       const min_difference = period_difference.getMinutes()>=15? period_difference.getMinutes() : "15" ;
+       if(hour_difference>0){
+        Toast.show(`Reminder set in approximately
+                   ${hour_difference} ${hour_difference===1? "hour." : "hours."}`);
+       }else{
+        Toast.show(`Reminder set in approximately
+                ${min_difference} minutes.`);
+       }
+
      }
       return;
     }

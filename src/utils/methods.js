@@ -149,6 +149,7 @@ const utils = {
         isNotifyOn: false,
         isNotifyPeristant: false,
         isMetric: true,
+        canNotify: true,
       };
       await utils.setLocalData(KEY.SETTINGS, storedState);
       return storedState;
@@ -156,10 +157,12 @@ const utils = {
     return JSON.parse(localSettings);
   },
 
-  setCachedSettings: async (settingData) => {
-    // Set the local settings
-    await utils.setLocalData(KEY.SETTINGS, settingData );
-  }
+  getTimeDifference: (date) => {
+    const diff = new Date(new Date(date) - Date.now());
+    const hours = diff.getHours();
+    const mins = diff.getMinutes();
+    return { hours, mins };
+  },
 };
 
 export default utils;

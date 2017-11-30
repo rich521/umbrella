@@ -8,36 +8,11 @@ import BackgroundTask from 'react-native-background-task';
 import utils from './utils/methods';
 import styles, { fontPrimaryColor } from './styles/app';
 // import { KEY } from './utils/constants';
+import './utils/background';
 
-const TASK_PERIOD = 24 * 3600;
 const ICON_SIZE = 35;
 const RefreshIcon = <Icon name="autorenew" size={ICON_SIZE} color={fontPrimaryColor} />;
 const SettingsIcon = <Icon name="settings" size={ICON_SIZE} color={fontPrimaryColor} />;
-
-BackgroundTask.define(async () => {
-  BackgroundTask.cancel(); // ios/android
-
-  const refreshData = await utils.refreshCachedItems();
-  const { isMetric, isNotifyPeristant } = await utils.fetchSettings();
-  const notificationTitle = (refreshData.isRaining) ? "We woulsd recommend you take an umbrella" : "No umbrella needed";
-  const minTemp = Math.round(refreshData.description.tempMinMax.min);
-  const maxTemp = Math.round(refreshData.description.tempMinMax.max);
-  const degreeNotation = isMetric ? " \u2103" : " \u2109";
-  const notificationMessage = minTemp===maxTemp ? `Expected temperature around ${minTemp}${degreeNotation}` : `Expected temperatures between ${minTemp}${degreeNotation} and ${maxTemp}${degreeNotation}`;
-  if ( refreshData.isRaining || isNotifyPeristant ){
-    PushNotification.localNotification({
-      title: notificationTitle,
-      message: `${notificationMessage} with ${refreshData.description.weatherDescription}.`, // (required)
-      playSound: false,
-      // largeIcon: "icon2",
-      smallIcon: "icon",
-    });
-  }
-  BackgroundTask.schedule({
-    period: TASK_PERIOD,
-  });
-  BackgroundTask.finish();
-});
 
 export default class App extends Component {
   // Default values

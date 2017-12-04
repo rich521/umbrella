@@ -79,9 +79,8 @@ export default class App extends Component {
     BackgroundTask.cancel();
     if (isNotifyOn) {
       const settings = await utils.fetchSettings();
-      const remind_date = new Date(settings.date);
-      const period_difference = new Date(remind_date - Date.now());
-      const remindLaterTimeInSecs = (period_difference.getHours() * 60 * 60 + period_difference.getMinutes() * 60);
+      const { hours, mins } = utils.getTimeDifference(settings.date);
+      const remindLaterTimeInSecs = (hours * 60 * 60 + mins * 60);
       BackgroundTask.schedule({
           period: remindLaterTimeInSecs, //calculate time to set (s)
       });

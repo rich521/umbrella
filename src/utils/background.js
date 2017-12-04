@@ -1,6 +1,5 @@
 import BackgroundTask from 'react-native-background-task';
 import PushNotification from 'react-native-push-notification';
-<<<<<<< HEAD
 import { PushNotificationIOS } from 'react-native';
 import utils from './methods';
 import { KEY } from './constants';
@@ -9,15 +8,6 @@ const TASK_PERIOD = 24 * 3600;
 
 const isTimeNHoursAwayFromSetTime = (hours, n) => hours <= (n - 1) || hours >= (24 - n);
 const isTime30MinsAwayFromSetTime = (hours, mins, n) => (hours === 0 && mins <= 30) || (hours === 23 && mins >= 30);
-=======
-import utils from './methods';
-import { KEY } from './constants';
-
-// const TASK_PERIOD = 24 * 3600;
-
-const isTimeNHoursAwayFromSetTime = (hours, n) => hours <= (n - 1) || hours >= (24 - n);
-const isTime30MinsAwayFromSetTime = (hours, mins) => (hours === 0 && mins <= 30) || (hours === 23 && mins >= 30);
->>>>>>> 81db227938e2338719be11330c75a8892e82f107
 
 function renderNotification(settings, refreshData) {
   const notificationTitle = (refreshData.isRaining) ? "We woulsd recommend you take an umbrella" : "No umbrella needed";

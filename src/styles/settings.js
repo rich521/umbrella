@@ -19,7 +19,7 @@ const styles = {
     underTextStyle: {
         fontWeight: '200',
         fontSize: 11,
-        color: 'grey',
+        color: '#bababa',
         // fontStyle: 'italic',
     },
 };

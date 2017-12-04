@@ -1,5 +1,6 @@
 import BackgroundTask from 'react-native-background-task';
 import PushNotification from 'react-native-push-notification';
+import { PushNotificationIOS } from 'react-native';
 import utils from './methods';
 import { KEY } from './constants';
 
@@ -51,6 +52,8 @@ if (utils.isAndroid()) {
    */
 
   (function (){
+    PushNotificationIOS.requestPermissions();
+
     BackgroundTask.define(async () => {
       // Runs every ~15 mins for 30s
 

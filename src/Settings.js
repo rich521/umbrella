@@ -83,7 +83,7 @@ class Settings extends Component {
             <CardSection style={settingsHeight}>
               <View>
                 <Text style={styles.textStyle}>Notify me at</Text>
-                <Text style={styles.underTextStyle}>Minimum time before Notification is 15 minutes. </Text>
+                <Text style={styles.underTextStyle}>Minimum time before notification occurs is 15 minutes. </Text>
               </View>
               <DateModal
                 onDateChange={this.onDateChange}

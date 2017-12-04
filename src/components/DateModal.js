@@ -1,4 +1,5 @@
 import React from 'react';
+import Toast from 'react-native-simple-toast';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -32,6 +33,16 @@ const DateModal = ({
        dateTime.setMinutes(minute);
        dateTime.setDate(dateTime.getDate() + 1);
        onDateChange(dateTime);
+       const { hours, mins } = utils.getTimeDifference(dateTime);
+       const min_difference = mins>=15? mins : "15" ;
+       if(hours>0){
+        Toast.show(`Reminder set in approximately
+                   ${hours} ${hours===1? "hour." : "hours."}`);
+       }else{
+        Toast.show(`Reminder set in approximately
+                ${min_difference} minutes.`);
+       }
+
      }
       return;
     }

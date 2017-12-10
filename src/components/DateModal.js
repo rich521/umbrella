@@ -35,10 +35,10 @@ const DateModal = ({
        onDateChange(dateTime);
        const { hours, mins } = utils.getTimeDifference(dateTime);
        const min_difference = mins>=15? mins : "15" ;
-       if(hours>0){
+       if(hours > 0) {
         Toast.show(`Reminder set in approximately
-                   ${hours} ${hours===1? "hour." : "hours."}`);
-       }else{
+                   ${hours} ${hours === 1 ? "hour." : "hours."}`);
+       } else {
         Toast.show(`Reminder set in approximately
                 ${min_difference} minutes.`);
        }
